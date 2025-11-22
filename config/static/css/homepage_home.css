@@ -1,0 +1,15 @@
+/* ========== Home Page Styles ========== */
+.home-wrapper {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.home-heading {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+}

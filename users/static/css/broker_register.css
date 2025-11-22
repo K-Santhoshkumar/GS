@@ -1,0 +1,249 @@
+/* body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+} */
+.register-container {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 36px 36px 40px 36px;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.05);
+  width: 320px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.register-form h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #273c75;
+  margin-bottom: 6px;
+}
+
+.register-form h3 {
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #273c75;
+}
+
+.subtitle {
+  font-size: 12px;
+  font-weight: 400;
+  color: #374151;
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+  color: #474a57;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+input[type="email"],
+input[type="tel"] {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="email"]:focus,
+input[type="tel"]:focus {
+  border-color: #2e4aac;
+}
+
+.info-text {
+  font-size: 11px;
+  color: #444b62;
+  font-weight: 400;
+  margin-top: -12px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.btn-send-otp {
+  width: 100%;
+  background-color: #2e4aac;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-send-otp:hover {
+  background-color: #1c2e7a;
+}
+
+.terms-text {
+  font-size: 11px;
+  color: #262626;
+  margin-top: 20px;
+  line-height: 1.3;
+}
+
+.terms-text a {
+  color: #2e4aac;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.login-text {
+  font-size: 12px;
+  margin-top: 22px;
+  color: #262626;
+}
+
+.login-text a {
+  font-weight: 600;
+  color: #2e4aac;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.login-text a:hover {
+  text-decoration: underline;
+}
+
+/* OTP Input Section */
+.otp-input-section {
+  margin-bottom: 18px;
+}
+
+.otp-input-section label {
+  display: block;
+  text-align: left;
+  font-size: 13px;
+  color: #474a57;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.otp-input {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 14px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  outline: none;
+  box-sizing: border-box;
+  margin-bottom: 18px;
+  transition: border-color 0.3s ease;
+}
+
+.otp-input:focus {
+  border-color: #2e4aac;
+}
+
+.btn-verify-otp {
+  width: 100%;
+  background-color: #2e4aac;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 18px;
+}
+
+.btn-verify-otp:hover {
+  background-color: #1c2e7a;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .register-container {
+    width: 90%;
+    padding: 24px 24px 32px 24px;
+  }
+
+  .register-form h1 {
+    font-size: 20px;
+  }
+
+  .register-form h3 {
+    font-size: 14px;
+  }
+
+  .subtitle {
+    font-size: 11px;
+  }
+
+  label {
+    font-size: 12px;
+  }
+
+  input[type="email"],
+  input[type="tel"],
+  .otp-input {
+    padding: 12px 13px;
+    font-size: 13px;
+  }
+
+  .btn-send-otp,
+  .btn-verify-otp {
+    padding: 13px 0;
+    font-size: 14px;
+  }
+
+  .info-text,
+  .terms-text,
+  .login-text {
+    font-size: 10px;
+  }
+}
+
+/* Popup Message Styles */
+.popup-message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  z-index: 10000;
+  max-width: 300px;
+  word-wrap: break-word;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+.popup-message.success {
+  background-color: #10b981;
+}
+
+.popup-message.error {
+  background-color: #ef4444;
+}
+
+.popup-message.info {
+  background-color: #6b7280;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      {% block title %}PMS & AIF India — Powered by Goalstox{% endblock %}
+    </title>
+
+    <meta
+      name="description"
+      content="Self-serve, transparent method for investing together in PMS & AIFs. Research-backed, goal-based investments. Powered by Goalstox."
+    />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Favicon -->
+    <link
+      rel="icon"
+      href="{% static 'assets/white-long-removebg.png' %}"
+      type="image/png"
+    />
+
+    <!-- Base CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    {% block extra_css %}{% endblock %}
+  </head>
+
+  <body>
+    <!-- CSRF token loaded safely without breaking layout -->
+    <input type="hidden" id="csrf-token-holder" value="{{ csrf_token }}" />
+
+    <!-- Background grain -->
+    <div class="bg-grain" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header class="site-header">
+      <div class="container nav-container">
+        <a class="brand" href="/" aria-label="PMS & AIF India home">
+          <img
+            src="{% static 'assets/white-long-removebg.png' %}"
+            alt=""
+            class="brand-mark"
+          />
+        </a>
+
+        <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+          <span class="nav-bar"></span>
+          <span class="nav-bar"></span>
+          <span class="nav-bar"></span>
+        </button>
+
+        <nav class="nav" aria-label="Primary">
+          <ul class="nav-list">
+            <li><a href="#opportunities">Opportunities</a></li>
+            <li><a href="#pms">PMS</a></li>
+            <li><a href="#aif">AIF</a></li>
+          </ul>
+
+          <div class="nav-cta">
+            <a class="btn btn-ghost" href="#app">Partner</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content">{% block content %}{% endblock %}</main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <a class="brand brand-foot" href="/">
+            <img
+              src="{% static 'assets/white-long-removebg.png' %}"
+              alt="Goalstox mark"
+              class="brand-mark"
+            />
+            <span class="brand-text">PMS & AIF India</span>
+          </a>
+
+          <p class="muted">
+            © {{ now|date:"Y" }} PMS & AIF India. All rights reserved.<br />
+            Powered by Goalstox.
+          </p>
+        </div>
+
+        <nav aria-label="Footer">
+          <ul class="foot-links">
+            <li><a href="#pms">PMS</a></li>
+            <li><a href="#aif">AIF</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#disclosures">Disclosures</a></li>
+            <li><a href="#privacy">Privacy</a></li>
+          </ul>
+        </nav>
+
+        <div class="foot-cta">
+          <a class="btn btn-dark" href="#register">Get Started</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Mobile Nav Toggle -->
+    <script>
+      (function () {
+        const toggle = document.querySelector(".nav-toggle");
+        const nav = document.querySelector(".nav");
+        if (toggle && nav) {
+          toggle.addEventListener("click", () => {
+            const open = nav.classList.toggle("open");
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+          });
+        }
+      })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

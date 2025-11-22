@@ -1,0 +1,65 @@
+# ==============================
+# Python / Django
+# ==============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+*.pot
+*.pyc
+db.sqlite3
+env/
+venv/
+ENV/
+.idea/
+.vscode/
+*.sqlite3
+
+# ==============================
+# Django specific
+# ==============================
+
+# Static & media (runtime generated)
+# Keep your app-level static (e.g. config/static/css/base.css)
+# but ignore the COLLECTED staticfiles folder in production
+/staticfiles/
+/media/
+
+# If you collect static to a separate directory
+# (use STATIC_ROOT in settings), ignore that one:
+# /static_root/
+
+# Ignore compiled frontend assets if any
+node_modules/
+build/
+dist/
+*.map
+
+# ==============================
+# OS / Editor files
+# ==============================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ==============================
+# VS Code & JetBrains
+# ==============================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# ==============================
+# Secrets / Credentials
+# ==============================
+*.env
+.env.*
+secret_key.txt

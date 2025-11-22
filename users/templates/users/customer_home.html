@@ -1,0 +1,73 @@
+{% extends "config/base.html" %} {% block title %} Customer Home {% endblock %}
+{% block extra_css %}
+<style>
+  .dashboard-shell {
+    max-width: 640px;
+    margin: 80px auto;
+    padding: 32px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+  }
+  .dashboard-shell h2 {
+    margin: 0 0 12px;
+    font-size: 1.75rem;
+  }
+  .dashboard-shell p {
+    margin: 0 0 24px;
+    color: #4a4a4a;
+  }
+  .dashboard-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .dashboard-actions form {
+    margin: 0;
+  }
+  .dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: none;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .dashboard-btn.primary {
+    background: #111;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  }
+  .dashboard-btn.primary:hover {
+    background: #000;
+  }
+  .dashboard-btn.secondary {
+    background: #f4f4f4;
+    color: #222;
+    border: 1px solid #e0e0e0;
+  }
+  .dashboard-btn.secondary:hover {
+    background: #e9e9e9;
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="dashboard-shell">
+  <h2>Welcome, Customer!</h2>
+  <p>You are successfully logged in as a customer.</p>
+
+  <div class="dashboard-actions">
+    <a href="{% url 'users:customer_profile' %}" class="dashboard-btn primary">
+      View Profile
+    </a>
+
+    <form method="post" action="{% url 'users:customer_logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="dashboard-btn secondary">Logout</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
