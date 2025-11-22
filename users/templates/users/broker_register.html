@@ -2,7 +2,7 @@
 Broker Register{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/broker_register.css' %}" />
 {% endblock %} {% block content %}
-<div class="container">
+<div class="auth-wrapper">
   <div class="register-container">
     <form class="register-form" method="post" autocomplete="off">
       {% csrf_token %}
@@ -30,7 +30,7 @@ Broker Register{% endblock %} {% block extra_css %}
 
       <p class="info-text">We will send you OTP on your Email Id.</p>
 
-      <button type="submit" class="btn-send-otp" onclick="sendOtp(event)">
+      <button type="button" class="btn-send-otp" onclick="sendOtp(event)">
         Send OTP
       </button>
 

@@ -242,6 +242,15 @@ button {
 }
 .page-content {
   min-height: calc(100vh - 72px - 200px);
-  padding: 60px 0;
-  display: block; /* FIX */
+  display: block;
+  padding: 40px 0;
+}
+/* Center login/register pages */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: calc(100vh - 72px - 200px); /* header + footer height */
+  padding: 40px 20px;
 }

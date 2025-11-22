@@ -2,51 +2,54 @@
 Customer Register{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/broker_register.css' %}" />
 {% endblock %} {% block content %}
-<div class="register-container">
-  <form class="register-form" method="post" autocomplete="off">
-    {% csrf_token %}
-    <h1>Goalstox</h1>
-    <h3>Customer Register</h3>
-    <p class="subtitle">Create your account to get started</p>
+<div class="auth-wrapper">
+  <div class="register-container">
+    <form class="register-form" method="post" autocomplete="off">
+      {% csrf_token %}
+      <h1>Goalstox</h1>
+      <h3>Customer Register</h3>
+      <p class="subtitle">Create your account to get started</p>
 
-    <label for="email">Email address</label>
-    <input
-      type="email"
-      id="email"
-      name="email"
-      required
-      placeholder="yourname@yourmail.com"
-      value="{{ request.POST.email }}"
-    />
+      <label for="email">Email address</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        placeholder="yourname@yourmail.com"
+        value="{{ request.POST.email }}"
+      />
 
-    <label for="phone">Phone Number</label>
-    <input
-      type="tel"
-      id="phone"
-      name="phone"
-      required
-      placeholder="+91 9876543210"
-      value="{{ request.POST.phone }}"
-    />
+      <label for="phone">Phone Number</label>
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        required
+        placeholder="+91 9876543210"
+        value="{{ request.POST.phone }}"
+      />
 
-    <p class="info-text">We will send you OTP on your Email Id.</p>
+      <p class="info-text">We will send you OTP on your Email Id.</p>
 
-    <button type="submit" class="btn-send-otp" onclick="sendOtp(event)">
-      Send OTP
-    </button>
+      <button type="submit" class="btn-send-otp" onclick="sendOtp(event)">
+        Send OTP
+      </button>
 
-    <p class="terms-text">
-      By clicking Create an account below, you agree to our
-      <a href="#" target="_blank" rel="noopener">terms of service</a> and
-      <a href="#" target="_blank" rel="noopener">privacy statement</a>
-    </p>
+      <p class="terms-text">
+        By clicking Create an account below, you agree to our
+        <a href="#" target="_blank" rel="noopener">terms of service</a> and
+        <a href="#" target="_blank" rel="noopener">privacy statement</a>
+      </p>
 
-    <p class="login-text">
-      Already have an account?
-      <a href="{% url 'users:customer_login' %}">Login</a>
-    </p>
-  </form>
+      <p class="login-text">
+        Already have an account?
+        <a href="{% url 'users:customer_login' %}">Login</a>
+      </p>
+    </form>
+  </div>
 </div>
-{% endblock %} {% block extra_js %}
-<script src="{% static 'js/customer_register.js' %}"></script>
-{% endblock %}
+  {% block extra_js %}
+  <script src="{% static 'js/customer_register.js' %}"></script>
+  {% endblock %}{% endblock %}
+</div>

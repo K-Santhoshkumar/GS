@@ -1,8 +1,9 @@
 /* body {
   margin: 0;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: var(--bg);
-} */
+  background-color: #f9fafb;
+}
+ */
 .register-container {
   background: #ffffff;
   border-radius: 16px;

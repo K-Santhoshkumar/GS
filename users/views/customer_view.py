@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.messages import get_messages
 import json
 
 from users.validators.role_validator import validate_user_role
@@ -58,9 +59,12 @@ def _get_or_create_customer_onboarding(user):
 @ensure_csrf_cookie
 @csrf_protect
 def customer_login(request):
+    # Clear any stale messages from previous views
+    list(get_messages(request))
+
     if request.method == "POST":
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         if not otp_code:
             messages.error(request, "Please enter the OTP.")
@@ -92,8 +96,8 @@ def customer_login(request):
 @ensure_csrf_cookie
 def customer_register(request):
     if request.method == "POST":
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         # STEP 1 — Send OTP
         if not otp_code:
@@ -103,7 +107,7 @@ def customer_register(request):
 
             invalidate_existing_otps(OTPPurpose.SIGNUP, email=email)
             generate_otp(OTPPurpose.SIGNUP, email=email, deliver=True)
-
+            messages.info(request, "OTP sent to your email.")
             return render(
                 request,
                 "users/customer_register.html",
@@ -117,13 +121,28 @@ def customer_register(request):
                 messages.error(request, "Email already registered.")
                 return redirect("users:customer_register")
 
-            # Username MUST equal email (so Django auth works)
+            # Unique username
+            username = email.split("@")[0]
+            base = username
+            cnt = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base}{cnt}"
+                cnt += 1
+
+            import secrets
+            import string
+
+            password = "".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(12)
+            )
+
             user = User(
-                username=email,
+                username=username,
                 email=email,
                 role="CUSTOMER",
             )
-            user.set_unusable_password()  # ← important: no password auth
+            # OTP-only account: disable password auth
+            user.set_unusable_password()
             user.save()
 
             login(request, user)
@@ -191,9 +210,9 @@ def customer_logout(request):
 # ======================================================
 @require_POST
 def send_customer_otp(request):
-    data = json.loads(request.body)
-    email = data.get("email")
-    purpose = data.get("purpose", "LOGIN")
+    data = json.loads(request.body or "{}")
+    email = data.get("email") or ""
+    purpose = (data.get("purpose") or "LOGIN").upper()
 
     # Map purposes
     if purpose == "LOGIN":

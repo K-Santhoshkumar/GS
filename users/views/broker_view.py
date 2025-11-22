@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.messages import get_messages
 import json
 
 from users.validators.role_validator import validate_user_role
@@ -56,12 +57,13 @@ def _get_or_create_broker_onboarding(user):
 @ensure_csrf_cookie
 @csrf_protect
 def broker_login(request):
+    # Clear any stale messages from previous views
+    list(get_messages(request))
 
     if request.method == "POST":
-
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        password = request.POST.get("password") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         # ----------------------------------------
         # OTP LOGIN
@@ -82,7 +84,7 @@ def broker_login(request):
                 except User.DoesNotExist:
                     messages.error(request, "User not found.")
             else:
-                messages.error(request, "Invalid OTP")
+                messages.error(request, "Invalid OTP.")
 
             return render(request, "users/broker_login.html")
 
@@ -92,7 +94,6 @@ def broker_login(request):
         user = authenticate(request, username=email, password=password)
 
         if user:
-
             if user.role.upper() != "BROKER":
                 messages.error(request, "Unauthorized")
                 return render(request, "users/broker_login.html")
@@ -100,7 +101,7 @@ def broker_login(request):
             login(request, user)
             return redirect("users:broker_home")
 
-        messages.error(request, "Invalid Credentials")
+        messages.error(request, "Invalid credentials.")
 
     return render(request, "users/broker_login.html")
 
@@ -110,17 +111,14 @@ def broker_login(request):
 # ======================================================
 @ensure_csrf_cookie
 def broker_register(request):
-
     if request.method == "POST":
-
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         # ----------------------------------------
         # SEND OTP FIRST
         # ----------------------------------------
         if not otp_code:
-
             if User.objects.filter(email=email).exists():
                 messages.error(request, "Email already registered.")
                 return redirect("users:broker_register")
@@ -152,7 +150,8 @@ def broker_register(request):
                 username = f"{base}{cnt}"
                 cnt += 1
 
-            import secrets, string
+            import secrets
+            import string
 
             password = "".join(
                 secrets.choice(string.ascii_letters + string.digits) for _ in range(12)
@@ -167,13 +166,12 @@ def broker_register(request):
             messages.success(request, "Registration successful!")
             return redirect("users:broker_home")
 
-        else:
-            messages.error(request, "Invalid OTP")
-            return render(
-                request,
-                "users/broker_register.html",
-                {"email": email, "otp_sent": True},
-            )
+        messages.error(request, "Invalid OTP.")
+        return render(
+            request,
+            "users/broker_register.html",
+            {"email": email, "otp_sent": True},
+        )
 
     return render(request, "users/broker_register.html")
 
@@ -183,7 +181,6 @@ def broker_register(request):
 # ======================================================
 @login_required
 def broker_profile(request):
-
     profile = _get_or_create_broker_onboarding(request.user)
 
     if request.method == "POST":
@@ -229,10 +226,9 @@ def broker_logout(request):
 # ======================================================
 @require_POST
 def send_broker_otp(request):
-
-    data = json.loads(request.body)
-    email = data.get("email")
-    purpose = data.get("purpose", "LOGIN").upper()
+    data = json.loads(request.body or "{}")
+    email = data.get("email") or ""
+    purpose = (data.get("purpose") or "LOGIN").upper()
 
     # Purpose mapping
     if purpose == "LOGIN":

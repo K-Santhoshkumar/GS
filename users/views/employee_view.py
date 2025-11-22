@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.contrib.messages import get_messages
 import json
 
 from users.validators.role_validator import validate_user_role
@@ -52,7 +53,6 @@ def _get_or_create_employee_onboarding(user):
 # ======================================================
 # LOGIN (OTP ONLY)
 # ======================================================
-from django.contrib.messages import get_messages
 
 
 @ensure_csrf_cookie
@@ -62,8 +62,8 @@ def employee_login(request):
     list(get_messages(request))
 
     if request.method == "POST":
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         # Must submit OTP
         if not otp_code:
@@ -97,8 +97,8 @@ def employee_login(request):
 @ensure_csrf_cookie
 def employee_register(request):
     if request.method == "POST":
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp_code")
+        email = request.POST.get("email") or ""
+        otp_code = request.POST.get("otp_code") or ""
 
         # STEP 1 → Send OTP
         if not otp_code:
@@ -123,24 +123,39 @@ def employee_register(request):
                 return redirect("users:employee_register")
 
             # Username = email for unified login handling
+            username = email.split("@")[0]
+            base = username
+            cnt = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{base}{cnt}"
+                cnt += 1
+
+            import secrets
+            import string
+
+            password = "".join(
+                secrets.choice(string.ascii_letters + string.digits) for _ in range(12)
+            )
             user = User(
-                username=email,
+                username=username,
                 email=email,
                 role="EMPLOYEE",
             )
-            user.set_unusable_password()  # important for OTP-only accounts
+            # important for OTP-only accounts
+            user.set_unusable_password()
             user.save()
 
-            messages.success(request, "Registration successful! Please login.")
-            return redirect("users:employee_login")
+            # Keep behavior parallel to customer: auto-login after registration
+            login(request, user)
+            messages.success(request, "Registration successful!")
+            return redirect("users:employee_home")
 
-        else:
-            messages.error(request, "Invalid OTP.")
-            return render(
-                request,
-                "users/employee_register.html",
-                {"email": email, "otp_sent": True},
-            )
+        messages.error(request, "Invalid OTP.")
+        return render(
+            request,
+            "users/employee_register.html",
+            {"email": email, "otp_sent": True},
+        )
 
     return render(request, "users/employee_register.html")
 
@@ -195,9 +210,9 @@ def employee_logout(request):
 # ======================================================
 @require_POST
 def send_employee_otp(request):
-    data = json.loads(request.body)
-    email = data.get("email")
-    purpose = data.get("purpose", "LOGIN")
+    data = json.loads(request.body or "{}")
+    email = data.get("email") or ""
+    purpose = (data.get("purpose") or "LOGIN").upper()
 
     # Purpose mapping
     if purpose == "LOGIN":
