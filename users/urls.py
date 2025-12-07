@@ -1,15 +1,15 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import employee_view, customer_view, broker_view
+from users.views.unauthorized import unauthorized
+
 
 app_name = "users"
 
 urlpatterns = [
     # Employee URLs
     path("employee/login/", employee_view.employee_login, name="employee_login"),
-    path(
-        "employee/register/", employee_view.employee_register, name="employee_register"
-    ),
+    # path("employee/register/", employee_view.employee_register, name="employee_register"),
     path("employee/profile/", employee_view.employee_profile, name="employee_profile"),
     path("employee/home/", employee_view.employee_home, name="employee_home"),
     path(
@@ -34,6 +34,7 @@ urlpatterns = [
     path("customer/logout/", customer_view.customer_logout, name="customer_logout"),
     path("broker/logout/", broker_view.broker_logout, name="broker_logout"),
     path("employee/logout/", employee_view.employee_logout, name="employee_logout"),
+    path("unauthorized/", unauthorized, name="unauthorized"),
     # Legacy URLs (keeping for backward compatibility)
     # path("create-employee/", views.create_employee, name="create_employee"),
     # path("create-broker/", views.create_broker, name="create_broker"),

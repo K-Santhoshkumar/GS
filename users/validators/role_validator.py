@@ -1,8 +1,9 @@
+# users/validators/role_validator.py
+
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-# Map friendly names → values stored in CustomUser.role
 ROLE_MAP = {
     "broker": "BROKER",
     "customer": "CUSTOMER",
@@ -10,31 +11,32 @@ ROLE_MAP = {
 }
 
 
-def validate_user_role(email: str, expected_role: str) -> None:
+def validate_user_role(email: str, expected_role: str):
     """
-    Raise ValueError if the given email does NOT belong to the expected role.
-
-    expected_role: one of "broker", "customer", "employee" (case-insensitive)
+    Returns:
+        None  → user not found
+        True  → role matches
+        False → role mismatch
     """
-
-    # 1) User must exist
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        raise ValueError("User does not exist")
+        return None  # USER NOT FOUND
 
-    # 2) Normalize role name
-    expected_role_key = expected_role.lower()
-    if expected_role_key not in ROLE_MAP:
-        raise ValueError(f"Unknown expected role: {expected_role}")
+    expected = ROLE_MAP.get(expected_role.lower())
+    if not expected:
+        return False
 
-    expected_role_value = ROLE_MAP[expected_role_key]
+    return user.role.upper() == expected
 
-    # 3) Compare against CustomUser.role (which stores uppercase values)
-    actual_role_value = (user.role or "").upper()
 
-    if actual_role_value != expected_role_value:
-        raise ValueError("Unauthorized")
+def is_authorized_request_user(user, required_role: str):
+    """Return True only for authenticated users with correct role."""
+    if not user.is_authenticated:
+        return False
 
-    # If no exception, validation passed
-    return None
+    expected = ROLE_MAP.get(required_role.lower())
+    if not expected:
+        return False
+
+    return user.role.upper() == expected

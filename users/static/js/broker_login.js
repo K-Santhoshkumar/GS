@@ -1,5 +1,5 @@
 // broker_login.js
-function showMessage(message, type) {
+function showMessage(message, type = "info") {
   // Remove existing message
   const existingMessage = document.querySelector(".popup-message");
   if (existingMessage) {
@@ -27,7 +27,7 @@ function sendOtp(event) {
   const email = document.getElementById("email").value.trim();
 
   if (!email) {
-    alert("Please enter your email address");
+    showMessage("Please enter your email address", "error");
     return;
   }
 
@@ -64,13 +64,16 @@ function sendOtp(event) {
         // Hide send OTP button and show OTP input section
         document.querySelector(".btn-send-otp").style.display = "none";
         document.getElementById("otp-section").style.display = "block";
-        alert("OTP sent successfully! Please check your email.");
+        showMessage(
+          "OTP sent successfully! Please check your email.",
+          "success"
+        );
       } else {
-        alert(data.message || "Failed to send OTP");
+        showMessage(data.message || "Failed to send OTP", "error");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("An error occurred while sending OTP");
+      showMessage("An error occurred while sending OTP", "error");
     });
 }

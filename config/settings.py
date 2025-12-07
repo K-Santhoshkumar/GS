@@ -136,3 +136,5 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "noreply@goalstox.com"
+# Session should expire when browser is closed
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

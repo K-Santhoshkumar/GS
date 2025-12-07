@@ -1,277 +1,200 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.contrib.messages import get_messages
-import json
+# users/views/broker_view.py
 
-from users.validators.role_validator import validate_user_role
+import json
+from django.db import transaction
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponseForbidden
+
 from otps.services import generate_otp, verify_otp, invalidate_existing_otps
 from otps.models import OTPPurpose
-from ..models import BrokerOnboarding
+
+# ✅ Only mandatory imports now used for authorization & blocking
+from config.permissions import is_broker
+from config.decorators import broker_required, block_logged_in_for_role
 
 User = get_user_model()
 
 
 # ======================================================
-# Helpers
+# SEND OTP (Called from frontend via AJAX POST)
 # ======================================================
-def _get_broker_defaults(user):
-    return {
-        "contact_name": user.get_full_name() or user.username or user.email,
-        "contact_phone": (
-            getattr(user, "phone_no", None) or getattr(user, "phone", None) or "N/A"
-        ),
-    }
+@require_POST
+def send_broker_otp(request):
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
 
+    email = data.get("email", "").strip()
+    purpose = data.get("purpose", "").upper()
 
-def _get_or_create_broker_onboarding(user):
-    onboarding, created = BrokerOnboarding.objects.get_or_create(
-        contact_email=user.email,
-        defaults=_get_broker_defaults(user),
-    )
+    if not email:
+        return JsonResponse({"success": False, "message": "Email required"}, status=400)
 
-    if not created:
-        defaults = _get_broker_defaults(user)
-        updated = False
-        for field, value in defaults.items():
-            if getattr(onboarding, field) != value:
-                setattr(onboarding, field, value)
-                updated = True
-        if updated:
-            onboarding.save()
+    if purpose == "LOGIN":
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "message": "User not found"}, status=404
+            )
 
-    return onboarding
+        if not is_broker(user):  # ✅ Profile-based role check only
+            return JsonResponse(
+                {"success": False, "message": "Unauthorized"}, status=401
+            )
 
+        otp_purpose = OTPPurpose.LOGIN
 
-# ======================================================
-# LOGIN VIEW (OTP + PASSWORD)
-# ======================================================
+    elif purpose == "SIGNUP":
+        if User.objects.filter(email=email).exists():
+            return JsonResponse(
+                {"success": False, "message": "Email already exists"}, status=400
+            )
 
+        otp_purpose = OTPPurpose.SIGNUP
 
-@ensure_csrf_cookie
-@csrf_protect
-def broker_login(request):
-    # Clear any stale messages from previous views
-    list(get_messages(request))
+    else:
+        return JsonResponse(
+            {"success": False, "message": "Invalid purpose"}, status=400
+        )
 
-    if request.method == "POST":
-        email = request.POST.get("email") or ""
-        password = request.POST.get("password") or ""
-        otp_code = request.POST.get("otp_code") or ""
+    invalidate_existing_otps(otp_purpose, email=email)
+    generate_otp(otp_purpose, email=email, deliver=True)
 
-        # ----------------------------------------
-        # OTP LOGIN
-        # ----------------------------------------
-        if otp_code:
-            if verify_otp(otp_code, OTPPurpose.LOGIN, email=email):
-                try:
-                    user = User.objects.get(email=email)
-
-                    # STRICT ROLE CHECK
-                    if user.role.upper() != "BROKER":
-                        messages.error(request, "Unauthorized")
-                        return render(request, "users/broker_login.html")
-
-                    login(request, user)
-                    return redirect("users:broker_home")
-
-                except User.DoesNotExist:
-                    messages.error(request, "User not found.")
-            else:
-                messages.error(request, "Invalid OTP.")
-
-            return render(request, "users/broker_login.html")
-
-        # ----------------------------------------
-        # PASSWORD LOGIN
-        # ----------------------------------------
-        user = authenticate(request, username=email, password=password)
-
-        if user:
-            if user.role.upper() != "BROKER":
-                messages.error(request, "Unauthorized")
-                return render(request, "users/broker_login.html")
-
-            login(request, user)
-            return redirect("users:broker_home")
-
-        messages.error(request, "Invalid credentials.")
-
-    return render(request, "users/broker_login.html")
+    return JsonResponse({"success": True, "message": "OTP sent"})
 
 
 # ======================================================
-# REGISTER VIEW (OTP ONLY)
+# REGISTER (OTP must be sent using send_broker_otp first)
 # ======================================================
 @ensure_csrf_cookie
+# @block_logged_in_for_role("broker", "users:broker_home")
 def broker_register(request):
     if request.method == "POST":
-        email = request.POST.get("email") or ""
-        otp_code = request.POST.get("otp_code") or ""
-
-        # ----------------------------------------
-        # SEND OTP FIRST
-        # ----------------------------------------
-        if not otp_code:
-            if User.objects.filter(email=email).exists():
-                messages.error(request, "Email already registered.")
-                return redirect("users:broker_register")
-
-            invalidate_existing_otps(OTPPurpose.SIGNUP, email=email)
-            generate_otp(OTPPurpose.SIGNUP, email=email, deliver=True)
-
-            messages.info(request, "OTP sent to your email.")
+        email = request.POST.get("email", "").strip()
+        otp = request.POST.get("otp_code", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists.", "error")
             return render(
-                request,
-                "users/broker_register.html",
-                {"email": email, "otp_sent": True},
+                request, "users/broker_register.html", {"email": email}, status=400
+            )
+        if not verify_otp(otp, OTPPurpose.SIGNUP, email=email):
+            messages.error(request, "Invalid OTP", "error")
+            return render(
+                request, "users/broker_register.html", {"email": email}, status=400
             )
 
-        # ----------------------------------------
-        # OTP VERIFIED → CREATE USER
-        # ----------------------------------------
-        if verify_otp(otp_code, OTPPurpose.SIGNUP, email=email):
+        username = email.split("@")[0]
+        base, i = username, 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base}{i}"
+            i += 1
 
-            if User.objects.filter(email=email).exists():
-                messages.error(request, "Email already registered.")
-                return redirect("users:broker_register")
+        try:
+            with transaction.atomic():  # ✅ Best way: all-or-nothing DB commit
+                user = User.objects.create_user(
+                    username=username,
+                    email=email,
+                    role="BROKER",
+                )
+                user.set_unusable_password()
+                user.save()  # Signal runs here but inside atomic, so rollback works if needed
+                profile = user.broker_profile
+                profile.contact_phone = phone
+                profile.save()
+                login(request, user)
 
-            # Unique username
-            username = email.split("@")[0]
-            base = username
-            cnt = 1
-            while User.objects.filter(username=username).exists():
-                username = f"{base}{cnt}"
-                cnt += 1
-
-            import secrets
-            import string
-
-            password = "".join(
-                secrets.choice(string.ascii_letters + string.digits) for _ in range(12)
-            )
-
-            # CRITICAL — Set role BEFORE saving → signals create only BrokerOnboarding
-            user = User(username=username, email=email, role="BROKER")
-            user.set_password(password)
-            user.save()
-
-            login(request, user)
-            messages.success(request, "Registration successful!")
             return redirect("users:broker_home")
 
-        messages.error(request, "Invalid OTP.")
-        return render(
-            request,
-            "users/broker_register.html",
-            {"email": email, "otp_sent": True},
-        )
+        except Exception as e:
+            messages.error(request, "Registration Failed", "error")
+            print("Registration Error:", e)
+            return render(
+                request, "users/broker_register.html", {"email": email}, status=500
+            )
 
     return render(request, "users/broker_register.html")
 
 
 # ======================================================
-# PROFILE VIEW
-# ======================================================
-@login_required
-def broker_profile(request):
-    profile = _get_or_create_broker_onboarding(request.user)
-
-    if request.method == "POST":
-        name = request.POST.get("name")
-        phone = request.POST.get("phone_no")
-
-        if name:
-            profile.contact_name = name.strip()
-
-        if phone:
-            profile.contact_phone = phone.strip()
-
-        profile.save()
-        messages.success(request, "Profile updated successfully!")
-
-    return render(request, "users/broker_profile.html", {"profile": profile})
-
-
-# ======================================================
-# HOME VIEW
+# LOGIN (User must request OTP first, then submit it here)
 # ======================================================
 @ensure_csrf_cookie
+@csrf_protect
+# @block_logged_in_for_role("broker", "users:broker_home")
+def broker_login(request):
+
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        otp = request.POST.get("otp_code", "").strip()
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "User not found.", "error")
+            return render(
+                request, "users/broker_login.html", {"email": email}, status=400
+            )
+
+        if not verify_otp(otp, OTPPurpose.LOGIN, email=email):
+            messages.error(request, "Invalid OTP.", "error")
+            return render(
+                request, "users/broker_login.html", {"email": email}, status=400
+            )
+
+        if not is_broker(user):  # ✅ Only mandatory permission check now
+            return HttpResponseForbidden("Not allowed")
+
+        login(request, user)
+        return redirect("users:broker_home")
+
+    return render(request, "users/broker_login.html")
+
+
+# ======================================================
+# HOME (Only accessible to logged-in brokers with profile)
+# ======================================================
 @login_required
+@broker_required
 def broker_home(request):
     return render(request, "users/broker_home.html")
 
 
 # ======================================================
-# LOGOUT VIEW
+# PROFILE (Safe, no crash even if relation is missing)
 # ======================================================
-@csrf_protect
+@login_required
+@broker_required
+def broker_profile(request):
+
+    if not hasattr(request.user, "brokerprofile"):
+        messages.error(request, "Profile not created yet!", "error")
+        return redirect("users:unauthorized")
+
+    profile = request.user.brokerprofile
+
+    if request.method == "POST":
+        profile.contact_name = request.POST.get("name", profile.contact_name)
+        profile.contact_phone = request.POST.get("phone_no", profile.contact_phone)
+        profile.save()
+        messages.success(request, "Profile updated.", "success")
+        return redirect("users:broker_profile")
+
+    return render(request, "users/broker_profile.html", {"profile": profile})
+
+
+# ======================================================
+# LOGOUT (POST only + only brokers allowed because decorator is mandatory)
+# ======================================================
 @require_POST
+@broker_required
 def broker_logout(request):
-    from django.contrib.auth import logout
-
     logout(request)
-    messages.success(request, "Logout successful!")
     return redirect("users:broker_login")
-
-
-# ======================================================
-# SEND OTP (Ajax)
-# ======================================================
-@require_POST
-def send_broker_otp(request):
-    data = json.loads(request.body or "{}")
-    email = data.get("email") or ""
-    purpose = (data.get("purpose") or "LOGIN").upper()
-
-    # Purpose mapping
-    if purpose == "LOGIN":
-        otp_purpose = OTPPurpose.LOGIN
-    elif purpose == "SIGNUP":
-        otp_purpose = OTPPurpose.SIGNUP
-    elif purpose == "RESET":
-        otp_purpose = OTPPurpose.PASSWORD_RESET
-    else:
-        return JsonResponse({"success": False, "message": "Invalid purpose"})
-
-    # ----------------------------------------
-    # ROLE VALIDATION (LOGIN & RESET only)
-    # ----------------------------------------
-    if purpose != "SIGNUP":
-        try:
-            validate_user_role(email, "broker")
-        except ValueError as err:
-            return JsonResponse({"success": False, "message": str(err)}, status=401)
-
-    # SIGNUP must use NEW email only
-    if purpose == "SIGNUP" and User.objects.filter(email=email).exists():
-        return JsonResponse(
-            {"success": False, "message": "Email already registered"},
-            status=400,
-        )
-
-    try:
-        user = User.objects.get(email=email) if purpose != "SIGNUP" else None
-
-        invalidate_existing_otps(otp_purpose, email=email)
-
-        generate_otp(
-            purpose=otp_purpose,
-            email=email,
-            user=user,
-            deliver=True,
-        )
-
-        return JsonResponse({"success": True, "message": "OTP sent successfully"})
-
-    except User.DoesNotExist:
-        return JsonResponse({"success": False, "message": "User not found"})
-
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)})

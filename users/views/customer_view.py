@@ -1,256 +1,181 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
-from django.contrib.auth import get_user_model
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST
-from django.contrib.messages import get_messages
 import json
+from functools import wraps
+from django.db import transaction
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponseForbidden
 
-from users.validators.role_validator import validate_user_role
 from otps.services import generate_otp, verify_otp, invalidate_existing_otps
 from otps.models import OTPPurpose
-from ..models import CustomerOnboarding
+
+# ✅ Only mandatory imports for authorization & blocking
+from config.permissions import is_customer
+from config.decorators import customer_required, block_logged_in_for_role
 
 User = get_user_model()
 
 
-# ======================================================
-# Helpers
-# ======================================================
-def _get_customer_defaults(user):
-    return {
-        "customer_name": user.get_full_name() or user.username or user.email,
-        "customer_phone": getattr(user, "phone_no", None)
-        or getattr(user, "phone", None)
-        or "N/A",
-    }
+@require_POST
+def send_customer_otp(request):
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"success": False, "message": "Invalid JSON"}, status=400)
 
+    email = data.get("email", "").strip()
+    purpose = data.get("purpose", "").upper()
 
-def _get_or_create_customer_onboarding(user):
-    onboarding, created = CustomerOnboarding.objects.get_or_create(
-        customer_email=user.email,
-        defaults=_get_customer_defaults(user),
-    )
+    if not email:
+        return JsonResponse({"success": False, "message": "Email required"}, status=400)
 
-    if not created:
-        defaults = _get_customer_defaults(user)
-        updated = False
+    if purpose == "LOGIN":
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {"success": False, "message": "User not found"}, status=404
+            )
 
-        for field, value in defaults.items():
-            if getattr(onboarding, field) != value:
-                setattr(onboarding, field, value)
-                updated = True
+        if not is_customer(user):
+            return JsonResponse(
+                {"success": False, "message": "Unauthorized"}, status=401
+            )
 
-        if updated:
-            onboarding.save()
+        otp_purpose = OTPPurpose.LOGIN
 
-    return onboarding
+    elif purpose == "SIGNUP":
+        if User.objects.filter(email=email).exists():
+            return JsonResponse(
+                {"success": False, "message": "Email already exists"}, status=400
+            )
 
+        otp_purpose = OTPPurpose.SIGNUP
 
-# ======================================================
-# CUSTOMER LOGIN (OTP ONLY)
-# ======================================================
+    else:
+        return JsonResponse(
+            {"success": False, "message": "Invalid purpose"}, status=400
+        )
+
+    invalidate_existing_otps(otp_purpose, email=email)
+    generate_otp(otp_purpose, email=email, deliver=True)
+
+    return JsonResponse({"success": True, "message": "OTP sent"})
 
 
 @ensure_csrf_cookie
-@csrf_protect
-def customer_login(request):
-    # Clear any stale messages from previous views
-    list(get_messages(request))
-
-    if request.method == "POST":
-        email = request.POST.get("email") or ""
-        otp_code = request.POST.get("otp_code") or ""
-
-        if not otp_code:
-            messages.error(request, "Please enter the OTP.")
-            return render(request, "users/customer_login.html")
-
-        # ----- OTP LOGIN -----
-        if verify_otp(otp_code, OTPPurpose.LOGIN, email=email):
-            try:
-                user = User.objects.get(email=email)
-
-                if user.role.upper() != "CUSTOMER":
-                    messages.error(request, "Unauthorized")
-                    return render(request, "users/customer_login.html")
-
-                login(request, user)
-                return redirect("users:customer_home")
-
-            except User.DoesNotExist:
-                messages.error(request, "User not found.")
-        else:
-            messages.error(request, "Invalid OTP.")
-
-    return render(request, "users/customer_login.html")
-
-
-# ======================================================
-# CUSTOMER REGISTRATION (OTP ONLY — NO PASSWORD)
-# ======================================================
-@ensure_csrf_cookie
+# @block_logged_in_for_role("customer", "users:customer_home")
 def customer_register(request):
+
     if request.method == "POST":
-        email = request.POST.get("email") or ""
-        otp_code = request.POST.get("otp_code") or ""
-
-        # STEP 1 — Send OTP
-        if not otp_code:
-            if User.objects.filter(email=email).exists():
-                messages.error(request, "Email already registered.")
-                return redirect("users:customer_register")
-
-            invalidate_existing_otps(OTPPurpose.SIGNUP, email=email)
-            generate_otp(OTPPurpose.SIGNUP, email=email, deliver=True)
-            messages.info(request, "OTP sent to your email.")
+        email = request.POST.get("email", "").strip()
+        otp = request.POST.get("otp_code", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists.", "error")
             return render(
-                request,
-                "users/customer_register.html",
-                {"email": email, "otp_sent": True},
+                request, "users/customer_register.html", {"email": email}, status=400
             )
 
-        # STEP 2 — Verify OTP & Create Account
-        if verify_otp(otp_code, OTPPurpose.SIGNUP, email=email):
-
-            if User.objects.filter(email=email).exists():
-                messages.error(request, "Email already registered.")
-                return redirect("users:customer_register")
-
-            # Unique username
-            username = email.split("@")[0]
-            base = username
-            cnt = 1
-            while User.objects.filter(username=username).exists():
-                username = f"{base}{cnt}"
-                cnt += 1
-
-            import secrets
-            import string
-
-            password = "".join(
-                secrets.choice(string.ascii_letters + string.digits) for _ in range(12)
+        if not verify_otp(otp, OTPPurpose.SIGNUP, email=email):
+            messages.error(request, "Invalid OTP.", "error")
+            return render(
+                request, "users/customer_register.html", {"email": email}, status=400
             )
 
-            user = User(
-                username=username,
-                email=email,
-                role="CUSTOMER",
-            )
-            # OTP-only account: disable password auth
-            user.set_unusable_password()
-            user.save()
+        username = email.split("@")[0]
+        base, i = username, 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base}{i}"
+            i += 1
 
-            login(request, user)
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=username, email=email, role="CUSTOMER"
+                )
+                user.set_unusable_password()
+                user.save()
+                profile = user.customer_profile
+                profile.contact_phone = phone
+                profile.save()
+                login(request, user)
 
-            messages.success(request, "Registration successful!")
             return redirect("users:customer_home")
 
-        messages.error(request, "Invalid OTP.")
-        return render(
-            request,
-            "users/customer_register.html",
-            {"email": email, "otp_sent": True},
-        )
+        except Exception as e:
+            messages.error(request, "Registration Failed", "error")
+            print("Registration Error:", e)
+            return render(
+                request, "users/customer_register.html", {"email": email}, status=500
+            )
 
     return render(request, "users/customer_register.html")
 
 
-# ======================================================
-# PROFILE
-# ======================================================
-@login_required
-def customer_profile(request):
-    profile = _get_or_create_customer_onboarding(request.user)
+@ensure_csrf_cookie
+@csrf_protect
+# @block_logged_in_for_role("customer", "users:customer_home")
+def customer_login(request):
 
     if request.method == "POST":
-        name_input = request.POST.get("name")
-        phone_input = request.POST.get("phone_no")
+        email = request.POST.get("email", "").strip()
+        otp = request.POST.get("otp_code", "").strip()
 
-        if name_input:
-            profile.customer_name = name_input.strip()
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "User not found.", "error")
+            return render(
+                request, "users/customer_login.html", {"email": email}, status=400
+            )
 
-        if phone_input:
-            profile.customer_phone = phone_input.strip()
+        if not verify_otp(otp, OTPPurpose.LOGIN, email=email):
+            messages.error(request, "Invalid OTP.", "error")
+            return render(
+                request, "users/customer_login.html", {"email": email}, status=400
+            )
 
-        profile.save()
-        messages.success(request, "Profile updated successfully!")
+        if not is_customer(user):
+            return HttpResponseForbidden("Not allowed")
 
-    return render(request, "users/customer_profile.html", {"profile": profile})
+        login(request, user)
+        return redirect("users:customer_home")
+
+    return render(request, "users/customer_login.html")
 
 
-# ======================================================
-# HOME
-# ======================================================
-@ensure_csrf_cookie
 @login_required
+@customer_required
 def customer_home(request):
     return render(request, "users/customer_home.html")
 
 
-# ======================================================
-# LOGOUT
-# ======================================================
-@csrf_protect
+@login_required
+@customer_required
+def customer_profile(request):
+
+    if not hasattr(request.user, "customerprofile"):
+        messages.error(request, "Profile not created yet!", "error")
+        return redirect("users:unauthorized")
+
+    profile = request.user.customer_profile
+
+    if request.method == "POST":
+        profile.customer_name = request.POST.get("name", profile.customer_name)
+        profile.customer_phone = request.POST.get("phone_no", profile.customer_phone)
+        profile.save()
+        messages.success(request, "Profile updated.", "success")
+        return redirect("users:customer_profile")
+
+    return render(request, "users/customer_profile.html", {"profile": profile})
+
+
 @require_POST
+@customer_required
 def customer_logout(request):
-    from django.contrib.auth import logout
-
     logout(request)
-    messages.success(request, "Logout successful!")
     return redirect("users:customer_login")
-
-
-# ======================================================
-# SEND OTP (AJAX)
-# ======================================================
-@require_POST
-def send_customer_otp(request):
-    data = json.loads(request.body or "{}")
-    email = data.get("email") or ""
-    purpose = (data.get("purpose") or "LOGIN").upper()
-
-    # Map purposes
-    if purpose == "LOGIN":
-        otp_purpose = OTPPurpose.LOGIN
-    elif purpose == "SIGNUP":
-        otp_purpose = OTPPurpose.SIGNUP
-    elif purpose == "RESET":
-        otp_purpose = OTPPurpose.PASSWORD_RESET
-    else:
-        return JsonResponse({"success": False, "message": "Invalid purpose"})
-
-    # LOGIN/RESET: ensure email belongs to CUSTOMER
-    if purpose != "SIGNUP":
-        try:
-            validate_user_role(email, "customer")
-        except ValueError as e:
-            return JsonResponse({"success": False, "message": str(e)}, status=401)
-
-    # SIGNUP: must be new email
-    if purpose == "SIGNUP" and User.objects.filter(email=email).exists():
-        return JsonResponse(
-            {"success": False, "message": "Email already registered"}, status=400
-        )
-
-    try:
-        user = User.objects.get(email=email) if purpose != "SIGNUP" else None
-
-        invalidate_existing_otps(otp_purpose, email=email)
-        generate_otp(
-            purpose=otp_purpose,
-            email=email,
-            user=user,
-            deliver=True,
-        )
-
-        return JsonResponse({"success": True, "message": "OTP sent successfully"})
-
-    except User.DoesNotExist:
-        return JsonResponse({"success": False, "message": "User not found"})
-    except Exception as e:
-        return JsonResponse({"success": False, "message": str(e)})

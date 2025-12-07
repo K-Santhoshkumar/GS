@@ -1,11 +1,11 @@
 from .user import CustomUser
-from .brokerOnboarding import BrokerOnboarding
-from .customerOnboarding import CustomerOnboarding
-from .employeeOnboarding import EmployeeOnboarding
+from .brokerProfile import BrokerProfile
+from .customerProfile import CustomerProfile
+from .employeeProfile import EmployeeProfile
 
 __all__ = [
     "CustomUser",
-    "BrokerOnboarding",
-    "EmployeeOnboarding",
-    "CustomerOnboarding",
+    "BrokerProfile",
+    "EmployeeProfile",
+    "CustomerProfile",
 ]

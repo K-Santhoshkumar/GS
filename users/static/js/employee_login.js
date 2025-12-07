@@ -1,9 +1,32 @@
+function showMessage(message, type = "info") {
+  // Remove existing message
+  const existingMessage = document.querySelector(".popup-message");
+  if (existingMessage) {
+    existingMessage.remove();
+  }
+
+  // Create message element
+  const messageDiv = document.createElement("div");
+  messageDiv.className = `popup-message ${type}`;
+  messageDiv.textContent = message;
+
+  // Add to page
+  document.body.appendChild(messageDiv);
+
+  // Auto remove after 5 seconds
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.remove();
+    }
+  }, 5000);
+}
+
 function sendOtp(event) {
   event.preventDefault();
   const email = document.getElementById("email").value;
 
   if (!email) {
-    alert("Please enter your email address");
+    showMessage("Please enter your email address", "error");
     return;
   }
 
@@ -40,13 +63,16 @@ function sendOtp(event) {
         // Hide send OTP button and show OTP input
         document.querySelector(".btn-send-otp").style.display = "none";
         document.getElementById("otp-section").style.display = "block";
-        alert("OTP sent successfully! Please check your email.");
+        showMessage(
+          "OTP sent successfully! Please check your email.",
+          "success"
+        );
       } else {
-        alert(data.message || "Failed to send OTP");
+        showMessage(data.message || "Failed to send OTP", "error");
       }
     })
     .catch((error) => {
       console.error("Error:", error);
-      alert("An error occurred while sending OTP");
+      showMessage("An error occurred while sending OTP", "error");
     });
 }
