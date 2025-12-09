@@ -1,4 +1,4 @@
-from django.urls import path
+"""from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import employee_view, customer_view, broker_view
 from users.views.unauthorized import unauthorized
@@ -40,3 +40,4 @@ urlpatterns = [
     # path("create-broker/", views.create_broker, name="create_broker"),
     # path("create-customer/", views.create_customer, name="create_customer"),
 ]
+"""

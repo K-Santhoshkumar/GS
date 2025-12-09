@@ -4,18 +4,23 @@ from django.core.validators import RegexValidator, FileExtensionValidator
 from users.utils.dummy_relations import get_default_employee, get_default_broker
 from users.models.brokerProfile import BrokerProfile
 from users.models.employeeProfile import EmployeeProfile
+from users.validators.validators import (
+    pan_validator,
+    mobile_validator,
+    MigrationSafeFileValidators,
+)
 
 
 class CustomerProfile(models.Model):
     # validators
-    pan_validator = RegexValidator(
+    """pan_validator = RegexValidator(
         regex=r"^[A-Z]{5}[0-9]{4}[A-Z]$",
         message="Enter a valid PAN (e.g. ABCDE1234F). Use uppercase letters.",
     )
     mobile_validator = RegexValidator(
         regex=r"^[6-9]\d{9}$",
         message="Enter a valid 10-digit Indian mobile number starting with 6-9.",
-    )
+    )"""
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,

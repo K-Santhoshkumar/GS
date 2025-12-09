@@ -41,7 +41,7 @@ Customer Login{% endblock %} {% block extra_css %}
 
       <p class="register-text">
         Don't have an account?<br />
-        <a href="{% url 'users:customer_register' %}">
+        <a href="{% url 'users:customer:customer_register' %}">
           <strong>Register</strong>
         </a>
       </p>
@@ -50,4 +50,12 @@ Customer Login{% endblock %} {% block extra_css %}
 </div>
 {% endblock %} {% block extra_js %}
 <script src="{% static 'js/customer_login.js' %}"></script>
-{% endblock %}
+{% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    {% for m in messages %}
+      showMessage("{{ m|escapejs }}", "{{ m.tags }}");
+    {% endfor %}
+  });
+</script>
+{% endif %} {% endblock %}

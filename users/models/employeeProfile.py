@@ -4,6 +4,11 @@
 from django.db import models
 from users.models.user import CustomUser
 from django.conf import settings
+from users.validators.validators import (
+    pan_validator,
+    mobile_validator,
+    MigrationSafeFileValidators,
+)
 
 
 class EmployeeProfile(models.Model):
@@ -17,7 +22,9 @@ class EmployeeProfile(models.Model):
 
     name = models.CharField(max_length=200)
     employee_code = models.CharField(max_length=50, unique=True)
-    contact_phone = models.CharField(max_length=10, unique=True)
+    contact_phone = models.CharField(
+        max_length=10, validators=[mobile_validator], unique=True
+    )
     designation = models.CharField(max_length=100, blank=True)
     address = models.TextField(blank=True)
     email = models.EmailField(blank=True, null=True)

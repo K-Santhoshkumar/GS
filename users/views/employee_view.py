@@ -103,7 +103,7 @@ def employee_register(request):
                 profile.save()
                 login(request, user)
 
-            return redirect("users:employee_home")
+            return redirect("users:employee:employee_home")
 
         except Exception as e:
             messages.error(request, "Registration Failed", "error")
@@ -142,7 +142,7 @@ def employee_login(request):
             return HttpResponseForbidden("Not allowed")
 
         login(request, user)
-        return redirect("users:employee_home")
+        return redirect("users:employee:employee_home")
 
     return render(request, "users/employee_login.html")
 
@@ -157,9 +157,9 @@ def employee_home(request):
 @employee_required
 def employee_profile(request):
 
-    if not hasattr(request.user, "employeeprofile"):
+    if not hasattr(request.user, "employee_profile"):
         messages.error(request, "Profile not created yet!", "error")
-        return redirect("users:unauthorized")
+        return redirect("users:employee:unauthorized")
 
     profile = request.user.employee_profile
 
@@ -168,7 +168,7 @@ def employee_profile(request):
         profile.employee_phone = request.POST.get("phone_no", profile.employee_phone)
         profile.save()
         messages.success(request, "Profile updated.", "success")
-        return redirect("users:employee_profile")
+        return redirect("users:employee:employee_profile")
 
     return render(request, "users/employee_profile.html", {"profile": profile})
 
@@ -177,4 +177,4 @@ def employee_profile(request):
 @employee_required
 def employee_logout(request):
     logout(request)
-    return redirect("users:employee_login")
+    return redirect("users:employee:employee_login")

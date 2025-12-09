@@ -1,7 +1,15 @@
 {% extends "config/base.html" %} {% load static %} {% block title %}Goalstox -
 Broker Register{% endblock %} {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/broker_register.css' %}" />
-{% endblock %} {% block content %}
+{% endblock %} {% block content %} {% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    {% for m in messages %}
+      showMessage("{{ m|escapejs }}", "{{ m.tags }}");
+    {% endfor %}
+  });
+</script>
+{% endif %}
 <div class="auth-wrapper">
   <div class="register-container">
     <form class="register-form" method="post" autocomplete="off">
@@ -43,7 +51,7 @@ Broker Register{% endblock %} {% block extra_css %}
 
       <p class="login-text">
         Already have an account?
-        <a href="{% url 'users:broker_login' %}">Login</a>
+        <a href="{% url 'users:broker:broker_login' %}">Login</a>
       </p>
     </form>
   </div>

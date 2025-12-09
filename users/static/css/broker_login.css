@@ -7,9 +7,11 @@
 .login-container {
   background: #ffffff;
   padding: 30px 40px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   width: 320px;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .login-form h1 {
@@ -95,24 +97,6 @@ input.otp-input:focus {
 
 .register-text a:hover strong {
   text-decoration: underline;
-}
-
-.alert {
-  margin-bottom: 15px;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.alert-success {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  color: #b91c1c;
 }
 /* Popup Message Styles */
 .popup-message {

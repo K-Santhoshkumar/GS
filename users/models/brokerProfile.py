@@ -6,7 +6,11 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from users.models.employeeProfile import EmployeeProfile
 from django.utils.translation import gettext_lazy as _
-
+from users.validators.validators import (
+    pan_validator,
+    mobile_validator,
+    MigrationSafeFileValidators,
+)
 
 # =====================================================================
 #               FILE VALIDATORS (MIGRATION-SAFE, NO INNER FUNCS)
@@ -14,43 +18,84 @@ from django.utils.translation import gettext_lazy as _
 
 PDF_IMG_EXT = ["pdf", "png", "jpg", "jpeg", "gif"]
 
-
+""" 
 class MigrationSafeFileValidators:
-    """
-    Migration-safe validator for file size + extension.
-    Django migrations can serialize this because it has deconstruct().
-    """
+    
+    #Migration-safe validator for file size + extension.
+    #Safe against missing files on disk (won't raise FileNotFoundError during size check).
+    
 
     def __init__(self, max_kb, allowed_exts):
-        self.max_kb = max_kb
+        self.max_kb = int(max_kb)
+        # store a copy for deconstruct to serialize
         self.allowed_exts = [ext.lower() for ext in allowed_exts]
 
     def __call__(self, file_obj):
+        # file_obj can be None / empty string etc.
         if not file_obj:
             return
 
         # --- Size check ---
-        if file_obj.size > self.max_kb * 1024:
-            raise ValidationError(f"File size must be <= {self.max_kb} KB")
+        try:
+            size = None
+            # FileField FieldFile exposes .size via storage.size(name)
+            # but storage.size can raise if file not present on disk.
+            size = getattr(file_obj, "size", None)
+            # if .size is None try to compute via file-like object
+            if size is None and hasattr(file_obj, "file"):
+                try:
+                    file_obj.file.seek(0, os.SEEK_END)
+                    size = file_obj.file.tell()
+                    file_obj.file.seek(0)
+                except Exception:
+                    size = None
+        except Exception:
+            # If we cannot determine size (missing file, storage error), skip size validation.
+            size = None
+
+        if size is not None:
+            if size > self.max_kb * 1024:
+                raise ValidationError(f"File size must be <= {self.max_kb} KB")
 
         # --- Extension check ---
-        ext = os.path.splitext(file_obj.name)[1].lstrip(".").lower()
-        if ext not in self.allowed_exts:
-            raise ValidationError(f"Allowed file types: {', '.join(self.allowed_exts)}")
+        try:
+            name = getattr(file_obj, "name", None)
+            if name:
+                ext = os.path.splitext(name)[1].lstrip(".").lower()
+                if ext and ext not in self.allowed_exts:
+                    raise ValidationError(
+                        f"Allowed file types: {', '.join(self.allowed_exts)}"
+                    )
+        except Exception:
+            # be tolerant if file object doesn't expose name
+            return
 
     def deconstruct(self):
-        """
-        Required for Django migrations to serialize this validator safely.
-        """
         return (
             "users.models.brokerProfile.MigrationSafeFileValidators",
-            [self.max_kb, self.allowed_exts],
+            [self.max_kb, list(self.allowed_exts)],
             {},
         )
 
     def __repr__(self):
         return f"MigrationSafeFileValidators(max_kb={self.max_kb}, allowed_exts={self.allowed_exts})"
 
+
+# ==============================================================
+#                     AUTO-FOLDER CREATOR
+# ==============================================================
+
+
+def ensure_upload_folder(path: str):
+    #Automatically creates MEDIA_ROOT/upload_to folder if missing.
+    full_path = os.path.join(settings.MEDIA_ROOT, path)
+    directory = os.path.dirname(full_path)
+
+    # Create full directory structure
+    os.makedirs(directory, exist_ok=True)
+
+    return path
+ """
 
 # =====================================================================
 #                             CONSTANTS
@@ -100,7 +145,9 @@ class BrokerProfile(models.Model):
     # --- Contact Info ---
     contact_name = models.CharField(max_length=255)
     contact_email = models.EmailField()
-    contact_phone = models.CharField(max_length=40)
+    contact_phone = models.CharField(
+        max_length=10, validators=[mobile_validator], unique=True
+    )
     official_designation = models.CharField(max_length=200, blank=True, null=True)
 
     # --- ARN ---
@@ -127,7 +174,13 @@ class BrokerProfile(models.Model):
     products_allowed = models.JSONField(default=list, blank=True)
 
     # --- PAN ---
-    pan_number = models.CharField(max_length=20, blank=True, null=True)
+    pan_number = models.CharField(
+        max_length=10,
+        validators=[pan_validator],
+        unique=True,
+        blank=True,
+        null=True,
+    )
     pan_document = models.FileField(
         upload_to="onboarding/pan/",
         blank=True,

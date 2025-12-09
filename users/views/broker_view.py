@@ -74,7 +74,6 @@ def send_broker_otp(request):
 # REGISTER (OTP must be sent using send_broker_otp first)
 # ======================================================
 @ensure_csrf_cookie
-# @block_logged_in_for_role("broker", "users:broker_home")
 def broker_register(request):
     if request.method == "POST":
         email = request.POST.get("email", "").strip()
@@ -111,7 +110,7 @@ def broker_register(request):
                 profile.save()
                 login(request, user)
 
-            return redirect("users:broker_home")
+            return redirect("users:broker:broker_home")
 
         except Exception as e:
             messages.error(request, "Registration Failed", "error")
@@ -153,7 +152,7 @@ def broker_login(request):
             return HttpResponseForbidden("Not allowed")
 
         login(request, user)
-        return redirect("users:broker_home")
+        return redirect("users:broker:broker_home")
 
     return render(request, "users/broker_login.html")
 
@@ -166,30 +165,6 @@ def broker_login(request):
 def broker_home(request):
     return render(request, "users/broker_home.html")
 
-
-# ======================================================
-# PROFILE (Safe, no crash even if relation is missing)
-# ======================================================
-@login_required
-@broker_required
-def broker_profile(request):
-
-    if not hasattr(request.user, "brokerprofile"):
-        messages.error(request, "Profile not created yet!", "error")
-        return redirect("users:unauthorized")
-
-    profile = request.user.brokerprofile
-
-    if request.method == "POST":
-        profile.contact_name = request.POST.get("name", profile.contact_name)
-        profile.contact_phone = request.POST.get("phone_no", profile.contact_phone)
-        profile.save()
-        messages.success(request, "Profile updated.", "success")
-        return redirect("users:broker_profile")
-
-    return render(request, "users/broker_profile.html", {"profile": profile})
-
-
 # ======================================================
 # LOGOUT (POST only + only brokers allowed because decorator is mandatory)
 # ======================================================
@@ -197,4 +172,4 @@ def broker_profile(request):
 @broker_required
 def broker_logout(request):
     logout(request)
-    return redirect("users:broker_login")
+    return redirect("users:broker:broker_login")

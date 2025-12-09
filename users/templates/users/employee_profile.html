@@ -1,1 +1,98 @@
-<h1>employee profile</h1>
+{% extends "config/base.html" %} {% load static %} {% block title %}Employee
+Profile{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/broker_profile.css' %}" />
+{% endblock %} {% block content %}
+<section class="container">
+  <div class="profile-header">
+    <h1>Employee Profile</h1>
+    <a href="{% url 'users:employee:employee_home' %}" class="btn btn-ghost"
+      >Home</a
+    >
+  </div>
+
+  <!-- STEPS -->
+  <nav class="steps">
+    <a
+      href="?step=1"
+      class="step {% if step == 1 %}active{% endif %} {% if step_done_s1 %}done{% endif %}"
+    >
+      <span class="num">{% if step_done_s1 %}✓{% else %}1{% endif %}</span>
+      Basic Details
+    </a>
+
+    <a
+      href="?step=2"
+      class="step {% if step == 2 %}active{% endif %} {% if step_done_s2 %}done{% endif %}"
+    >
+      <span class="num">{% if step_done_s2 %}✓{% else %}2{% endif %}</span>
+      Address Details
+    </a>
+  </nav>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress">
+    <div
+      class="bar"
+      id="progress-bar"
+      style="--pct: {{ percent_complete }}%"
+    ></div>
+    <span class="progress-text">{{ percent_complete }}% Complete</span>
+  </div>
+
+  <!-- FORM -->
+  <div class="form-card">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" name="action" id="action-field" value="save" />
+
+      <!-- TITLE -->
+      <h3 class="step-title">
+        {% if step == 1 %} Basic Details {% else %} Address Details {% endif %}
+      </h3>
+
+      <!-- FIELDS -->
+      <div class="fields">
+        {% for item in fields_list %}
+        <div class="field">
+          <label>
+            {{ item.field.label }} {% if item.field.field.required %}
+            <span class="req">*</span>
+            {% endif %}
+          </label>
+          {{ item.field }} {% if item.field.errors %}
+          <p class="error">{{ item.field.errors.0 }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- BUTTONS -->
+      <div class="actions">
+        {% if step > 1 %}
+        <button type="submit" class="btn btn-ghost" onclick="setAction('prev')">
+          Previous
+        </button>
+        {% endif %} {% if step < 2 %}
+        <button
+          type="submit"
+          class="btn btn-primary"
+          onclick="setAction('next')"
+        >
+          Save & Continue
+        </button>
+        {% else %}
+        <button
+          type="submit"
+          class="btn btn-primary"
+          onclick="setAction('finish')"
+        >
+          Finish
+        </button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %} {% block extra_js %}
+<script src="{% static 'js/employee_profile.js' %}"></script>
+{% endblock %}

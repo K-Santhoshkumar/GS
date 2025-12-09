@@ -45,4 +45,12 @@ Employee Login{% endblock %} {% block extra_css %}
 </div>
 {% endblock %} {% block extra_js %}
 <script src="{% static 'js/employee_login.js' %}"></script>
-{% endblock %}
+{% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    {% for m in messages %}
+      showMessage("{{ m|escapejs }}", "{{ m.tags }}");
+    {% endfor %}
+  });
+</script>
+{% endif %} {% endblock %}

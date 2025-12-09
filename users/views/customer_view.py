@@ -104,7 +104,7 @@ def customer_register(request):
                 profile.save()
                 login(request, user)
 
-            return redirect("users:customer_home")
+            return redirect("users:customer:customer_home")
 
         except Exception as e:
             messages.error(request, "Registration Failed", "error")
@@ -143,7 +143,7 @@ def customer_login(request):
             return HttpResponseForbidden("Not allowed")
 
         login(request, user)
-        return redirect("users:customer_home")
+        return redirect("users:customer:customer_home")
 
     return render(request, "users/customer_login.html")
 
@@ -154,28 +154,8 @@ def customer_home(request):
     return render(request, "users/customer_home.html")
 
 
-@login_required
-@customer_required
-def customer_profile(request):
-
-    if not hasattr(request.user, "customerprofile"):
-        messages.error(request, "Profile not created yet!", "error")
-        return redirect("users:unauthorized")
-
-    profile = request.user.customer_profile
-
-    if request.method == "POST":
-        profile.customer_name = request.POST.get("name", profile.customer_name)
-        profile.customer_phone = request.POST.get("phone_no", profile.customer_phone)
-        profile.save()
-        messages.success(request, "Profile updated.", "success")
-        return redirect("users:customer_profile")
-
-    return render(request, "users/customer_profile.html", {"profile": profile})
-
-
 @require_POST
 @customer_required
 def customer_logout(request):
     logout(request)
-    return redirect("users:customer_login")
+    return redirect("users:customer:customer_login")

@@ -60,11 +60,11 @@
   <p>You are successfully logged in as a customer.</p>
 
   <div class="dashboard-actions">
-    <a href="{% url 'users:customer_profile' %}" class="dashboard-btn primary">
+    <a href="{% url 'users:customer:customer_profile' %}" class="dashboard-btn primary">
       View Profile
     </a>
 
-    <form method="post" action="{% url 'users:customer_logout' %}">
+    <form method="post" action="{% url 'users:customer:customer_logout' %}">
       {% csrf_token %}
       <button type="submit" class="dashboard-btn secondary">Logout</button>
     </form>

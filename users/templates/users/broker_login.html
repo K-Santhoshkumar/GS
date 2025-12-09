@@ -41,7 +41,7 @@ Broker Login{% endblock %} {% block extra_css %}
 
       <p class="register-text">
         Don't have an account?<br />
-        <a href="{% url 'users:broker_register' %}">
+        <a href="{% url 'users:broker:broker_register' %}">
           <strong>Register</strong>
         </a>
       </p>
@@ -50,4 +50,12 @@ Broker Login{% endblock %} {% block extra_css %}
 </div>
 {% endblock %} {% block extra_js %}
 <script src="{% static 'js/broker_login.js' %}"></script>
-{% endblock %}
+{% if messages %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    {% for m in messages %}
+      showMessage("{{ m|escapejs }}", "{{ m.tags }}");
+    {% endfor %}
+  });
+</script>
+{% endif %} {% endblock %}

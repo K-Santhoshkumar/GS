@@ -1,0 +1,194 @@
+/* Colors */
+:root {
+  --accent: #2563eb;
+  --success: #10b981;
+  --gray: #6b7280;
+  --dark: #111827;
+  --card: #ffffff;
+}
+
+/* Layout */
+.container {
+  max-width: 960px;
+  margin: 32px auto;
+  padding: 16px;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Steps */
+.steps {
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 10px;
+  flex-wrap: wrap;
+}
+
+.step {
+  padding: 8px 14px;
+  border-radius: 50px;
+  border: 1px solid #d1d5db;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #111;
+  text-decoration: none;
+}
+
+.step.active {
+  border-color: var(--accent);
+  background: #eef2ff;
+}
+
+.step.done .num {
+  background: var(--success);
+  color: white;
+}
+
+.num {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 28px;
+  background: #e5e7eb;
+  font-weight: bold;
+}
+
+/* Progress bar */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 18px;
+}
+
+.bar {
+  flex: 1;
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 50px;
+  position: relative;
+}
+
+.bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--pct);
+  background: linear-gradient(90deg, var(--accent), rgb(170, 92, 240));
+  border-radius: 50px;
+  transition: width 0.4s ease;
+}
+
+.progress-text {
+  min-width: 120px;
+  font-weight: 600;
+}
+
+/* Form card */
+.form-card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* Fields layout */
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+
+.field label {
+  font-weight: 600;
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  margin-top: 4px;
+}
+
+.req {
+  color: red;
+}
+
+.uploaded {
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.error {
+  color: #d00;
+  font-size: 14px;
+}
+
+/* Buttons */
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--dark);
+  color: white;
+}
+
+.btn-ghost {
+  background: white;
+  border: 1px solid #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .fields {
+    grid-template-columns: 1fr;
+  }
+
+  .progress-text {
+    display: none;
+  }
+}
+.uploaded {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.delete-file-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #cc0000;
+  font-size: 18px;
+  padding: 4px;
+}
+
+.delete-file-btn:hover {
+  color: #ff4444;
+  transform: scale(1.1);
+}

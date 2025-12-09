@@ -60,10 +60,10 @@
   <p>You are successfully logged in as an employee.</p>
 
   <div class="dashboard-actions">
-    <a href="{% url 'users:employee_profile' %}" class="dashboard-btn primary">
+    <a href="{% url 'users:employee:employee_profile' %}" class="dashboard-btn primary">
       View Profile
     </a>
-    <form method="post" action="{% url 'users:employee_logout' %}">
+    <form method="post" action="{% url 'users:employee:employee_logout' %}">
       {% csrf_token %}
       <button type="submit" class="dashboard-btn secondary">Logout</button>
     </form>

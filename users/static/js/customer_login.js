@@ -1,26 +1,16 @@
 // customer_login.js
 
-function showMessage(message, type = "info") {
-  // Remove existing message
+function showMessage(message, type) {
   const existingMessage = document.querySelector(".popup-message");
-  if (existingMessage) {
-    existingMessage.remove();
-  }
+  if (existingMessage) existingMessage.remove();
 
-  // Create message element
-  const messageDiv = document.createElement("div");
-  messageDiv.className = `popup-message ${type}`;
-  messageDiv.textContent = message;
+  const div = document.createElement("div");
+  div.className = `popup-message ${type}`;
+  div.textContent = message;
 
-  // Add to page
-  document.body.appendChild(messageDiv);
+  document.body.appendChild(div);
 
-  // Auto remove after 5 seconds
-  setTimeout(() => {
-    if (messageDiv.parentNode) {
-      messageDiv.remove();
-    }
-  }, 5000);
+  setTimeout(() => div.remove(), 5000);
 }
 
 function sendOtp(event) {
