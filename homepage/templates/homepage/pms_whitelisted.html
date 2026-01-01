@@ -1,0 +1,113 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}PMS — Whitelisted Providers{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pms_whitelisted.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="pms-hero">
+  <div class="container">
+
+    <h1 class="pms-hero-title">Portfolio Management Services</h1>
+    <p class="pms-hero-sub">
+      Curated PMS strategies from whitelisted providers
+    </p>
+
+    <!-- Search -->
+    <div class="pms-search-wrap">
+      <input id="search-input" class="pms-search-input"
+             placeholder="Search schemes or providers">
+    </div>
+
+    <!-- Providers -->
+    <h3 class="pms-providers-title">Whitelisted Providers</h3>
+
+    <div class="pms-marquee-wrapper">
+      <div class="pms-marquee-track">
+        {% for p in providers %}
+        <div class="pms-card">
+          <div class="pms-logo">{{ p.logo }}</div>
+          <div class="pms-name">{{ p.name }}</div>
+        </div>
+        {% endfor %}
+        {% for p in providers %}
+        <div class="pms-card">
+          <div class="pms-logo">{{ p.logo }}</div>
+          <div class="pms-name">{{ p.name }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MOST WATCHED -->
+<section class="pms-watched">
+  <div class="container">
+
+    <h2>Most Watched Schemes</h2>
+    <p class="pms-muted">Trending PMS strategies investors are tracking</p>
+
+    <div class="pms-watched-filters">
+      <button class="active" data-filter="all">All</button>
+      <button data-filter="Equity">Equity</button>
+      <button data-filter="Debt">Debt</button>
+      <button data-filter="Hybrid">Hybrid</button>
+      <button data-filter="Multi Asset">Multi Asset</button>
+    </div>
+
+    <div id="pms-watched-grid" class="pms-watched-grid"></div>
+
+  </div>
+</section>
+
+<!-- ALL SCHEMES -->
+<section class="pms-main">
+  <div class="container">
+
+    <div class="pms-schemes-head">
+      <h2>All Schemes</h2>
+
+      <select id="sort-select" class="pms-select">
+        <option value="returns">Sort by Returns</option>
+        <option value="name">Sort by Name</option>
+      </select>
+    </div>
+
+    <div id="filter-tabs" class="pms-filter-tabs"></div>
+
+    <div class="pms-table-card">
+      <table class="pms-table">
+        <thead id="schemes-head"></thead>
+        <tbody id="schemes-list"></tbody>
+      </table>
+    </div>
+
+    <div class="pms-pagination">
+      <div id="pagination-controls"></div>
+    </div>
+
+  </div>
+</section>
+
+<div id="modal" class="pms-modal">
+  <div class="pms-modal-card">
+    <div class="pms-modal-header">
+      <h3 id="modal-title"></h3>
+      <button onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+  window.PMS_DATA_URL = "/pms_whitelisted/data/";
+</script>
+
+<script src="{% static 'js/pms_whitelisted.js' %}"></script>
+{% endblock %}

@@ -1,128 +1,189 @@
-{% extends "config/base.html" %} {% load static %} {% block title %}Broker
-Profile {% endblock %} {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/broker_profile.css' %}" />
-{% endblock %} {% block content %}
+{% extends "config/base.html" %}
+{% load static %}
+{% block title %}Broker Profile{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/broker_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
 <section class="container">
+
+  <!-- Header -->
   <div class="profile-header">
     <h1>Broker Profile</h1>
-    <a href="{% url 'users:broker:broker_home' %}" class="btn btn-ghost"
-      >Home</a
-    >
+    <a href="{% url 'users:broker:broker_home' %}" class="btn btn-ghost">Home</a>
   </div>
 
-  <!-- Steps Navigation -->
+  <!-- Steps -->
   <nav class="steps">
-    <a
-      href="?step=1"
-      class="step {% if step == 1 %}active{% endif %} {% if step_done_s1 %}done{% endif %}"
-    >
-      <span class="num">{% if step_done_s1 %}✓{% else %}1{% endif %}</span>
-      Basic
-    </a>
-    <a
-      href="?step=2"
-      class="step {% if step == 2 %}active{% endif %} {% if step_done_s2 %}done{% endif %}"
-    >
-      <span class="num">{% if step_done_s2 %}✓{% else %}2{% endif %}</span>
-      ARN/APRN
-    </a>
-    <a
-      href="?step=3"
-      class="step {% if step == 3 %}active{% endif %} {% if step_done_s3 %}done{% endif %}"
-    >
-      <span class="num">{% if step_done_s3 %}✓{% else %}3{% endif %}</span> PAN
-      & Bank
-    </a>
-    <a
-      href="?step=4"
-      class="step {% if step == 4 %}active{% endif %} {% if step_done_s4 %}done{% endif %}"
-    >
-      <span class="num">{% if step_done_s4 %}✓{% else %}4{% endif %}</span>
-      Documents
-    </a>
-  </nav>
+  <a href="?step=1"
+     class="step {% if step == 1 %}active{% endif %} {% if step_done_s1 %}done{% endif %}">
+    <span class="num">{% if step_done_s1 %}✓{% else %}1{% endif %}</span>
+    Basic
+  </a>
+
+  <a href="?step=2"
+     class="step {% if step == 2 %}active{% endif %} {% if step_done_s2 %}done{% endif %}">
+    <span class="num">{% if step_done_s2 %}✓{% else %}2{% endif %}</span>
+    ARN / APRN
+  </a>
+
+  <a href="?step=3"
+     class="step {% if step == 3 %}active{% endif %} {% if step_done_s3 %}done{% endif %}">
+    <span class="num">{% if step_done_s3 %}✓{% else %}3{% endif %}</span>
+    PAN & Bank
+  </a>
+
+  <a href="?step=4"
+     class="step {% if step == 4 %}active{% endif %} {% if step_done_s4 %}done{% endif %}">
+    <span class="num">{% if step_done_s4 %}✓{% else %}4{% endif %}</span>
+    Address
+  </a>
+
+  <a href="?step=5"
+     class="step {% if step == 5 %}active{% endif %} {% if step_done_s5 %}done{% endif %}">
+    <span class="num">{% if step_done_s5 %}✓{% else %}5{% endif %}</span>
+    Documents
+  </a>
+
+  <a href="?step=6"
+     class="step {% if step == 6 %}active{% endif %} {% if step_done_s6 %}done{% endif %}">
+    <span class="num">{% if step_done_s6 %}✓{% else %}6{% endif %}</span>
+    Auth Signatory
+  </a>
+</nav>
+
 
   <!-- Progress -->
   <div class="progress">
-    <div
-      class="bar"
-      id="progress-bar"
-      style="--pct: {{ percent_complete }}%"
-    ></div>
+    <div class="bar" id="progress-bar" style="--pct: {{ percent_complete }}%"></div>
     <span class="progress-text">{{ percent_complete }}% Complete</span>
   </div>
 
-  <!-- FORM CARD -->
+  <!-- FORM -->
   <div class="form-card">
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      <input type="hidden" id="action-field" name="action" value="save" />
 
-      <h3 class="step-title">
-        {% if step == 1 %} Basic Details {% elif step == 2 %} ARN / APRN &
-        Products {% elif step == 3 %} PAN & Bank {% elif step == 4 %} Address &
-        Documents {% endif %}
-      </h3>
+      {% if step != 6 %}
+
+      <h3 class="step-title">{{ current_step_title }}</h3>
 
       <div class="fields">
         {% for item in fields_list %}
         <div class="field">
-          <label for="{{ item.field.id_for_label }}">
-            {{ item.field.label }} {% if item.field.field.required %}<span
-              class="req"
-              >*</span
-            >{% endif %}
+          <label>
+            {{ item.field.label }}
+            {% if item.field.field.required %}<span class="req">*</span>{% endif %}
           </label>
 
-          {{ item.field }} {% if item.uploaded %}
-          <div class="uploaded">
-            <a href="{{ item.uploaded.url }}" target="_blank">
-              {{ item.uploaded.name|slice:"40" }}
-            </a>
+          {{ item.field }}
 
-            <button
-              type="button"
-              class="delete-file-btn"
-              data-field="{{ item.field.name }}"
-            >
-              🗑
-            </button>
+          {% if item.uploaded %}
+          <div class="uploaded-file">
+            <a href="{{ item.uploaded.url }}" target="_blank">📄 {{ item.uploaded.name }}</a>
+            <button type="button" class="delete-file-btn" data-field="{{ item.field.name }}">🗑</button>
           </div>
-          {% endif %} {% if item.field.errors %}
-          <p class="error">{{ item.field.errors }}</p>
+          {% endif %}
+
+          {% if item.field.errors %}
+          <p class="error">{{ item.field.errors|striptags }}</p>
           {% endif %}
         </div>
         {% endfor %}
       </div>
 
+      {% else %}
+
+      <!-- ================= STEP 6 ================= -->
+
+      <h3 class="step-title">Authorized Signatories (Max 4)</h3>
+
+      <!-- EXISTING PREVIEW -->
+      {% if signatories %}
+      <div class="signatory-grid">
+        {% for s in signatories %}
+        <div class="signatory-card">
+          <strong>{{ s.auth_signatory_name }}</strong>
+          <p>{{ s.auth_signatory_email }}</p>
+          <p>{{ s.auth_signatory_phone }}</p>
+          <p>{{ s.auth_signatory_pan }}</p>
+          {% if s.auth_signatory_kyc %}
+          <a href="{{ s.auth_signatory_kyc.url }}" target="_blank">📄 View KYC</a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if signatories|length < 4 %}
+      <div class="actions" style="justify-content:flex-start;">
+        <button type="button" id="add-signatory-btn" class="btn btn-ghost">
+          + Add Authorized Signatory
+        </button>
+      </div>
+      {% endif %}
+
+      <!-- DYNAMIC FORMS -->
+      <div id="signatory-forms"></div>
+
+      <!-- TEMPLATE -->
+      <template id="signatory-template">
+        <div class="signatory-card form-card">
+          <div class="fields">
+            <div class="field">
+              <label>Name <span class="req">*</span></label>
+              <input type="text" name="auth_signatory_name[]" required>
+            </div>
+
+            <div class="field">
+              <label>Email <span class="req">*</span></label>
+              <input type="email" name="auth_signatory_email[]" required>
+            </div>
+
+            <div class="field">
+              <label>Phone <span class="req">*</span></label>
+              <input type="text" name="auth_signatory_phone[]" required>
+            </div>
+
+            <div class="field">
+              <label>PAN <span class="req">*</span></label>
+              <input type="text" name="auth_signatory_pan[]" required>
+            </div>
+
+            <div class="field">
+              <label>KYC Document <span class="req">*</span></label>
+              <input type="file" name="auth_signatory_kyc[]" required>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-ghost remove-signatory">Remove</button>
+          </div>
+        </div>
+      </template>
+
+      {% endif %}
+
+      <!-- ACTIONS -->
       <div class="actions">
         {% if step > 1 %}
-        <button type="submit" class="btn btn-ghost" onclick="setAction('prev')">
-          Previous
-        </button>
-        {% endif %} {% if step < 4 %}
-        <button
-          type="submit"
-          class="btn btn-primary"
-          onclick="setAction('next')"
-        >
-          Save & Continue
-        </button>
+        <button type="submit" name="action" value="prev" class="btn btn-ghost">Previous</button>
+        {% endif %}
+
+        {% if step < 6 %}
+        <button type="submit" name="action" value="next" class="btn btn-primary">Save & Continue</button>
         {% else %}
-        <button
-          type="submit"
-          class="btn btn-primary"
-          onclick="setAction('finish')"
-        >
-          Finish
-        </button>
+        <button type="submit" name="action" value="finish" class="btn btn-primary">Finish</button>
         {% endif %}
       </div>
+
     </form>
   </div>
 </section>
+{% endblock %}
 
-{% endblock %} {% block extra_js %}
+{% block extra_js %}
 <script src="{% static 'js/broker_profile.js' %}"></script>
 {% endblock %}

@@ -1,0 +1,100 @@
+
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Partner with Goalstox — PMS & AIF India{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/partner.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="partner-hero">
+  <div class="container hero-grid">
+    <div class="hero-text">
+      <h1>Partner with <span class="highlight">Goalstox</span></h1>
+      <p class="lead">
+        Empower your clients with curated PMS & AIF opportunities — backed by technology, research,
+        and complete sales support. We shortlist only what matters.
+      </p>
+      <ul class="keypoints">
+        <li>Whitelisted PMS & AIFs — 100% compliant & transparent</li>
+        <li>WSYBI approach — <em>We Sell, You Bring Investor</em></li>
+        <li>Focused support for Tier-2 & Tier-3 cities</li>
+        <li>Digital onboarding, customer risk profiling & CRM support</li>
+      </ul>
+    </div>
+
+    <div class="hero-form">
+      <h3>Become a Partner</h3>
+      <p class="muted">Fill the form below, and our partnership team will reach out.</p>
+      
+      
+      
+      
+      
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.source_url }}
+        <div class="field">
+          <label for="{{ form.name.id_for_label }}">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="error">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="error">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.mobile.id_for_label }}">Mobile</label>
+          {{ form.mobile }}
+          {% if form.mobile.errors %}<p class="error">{{ form.mobile.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field field-full">
+          <label for="{{ form.query.id_for_label }}">Tell us about your setup</label>
+          {{ form.query }}
+          {% if form.query.errors %}<p class="error">{{ form.query.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field checkbox field-full">
+          <label class="checkline">
+            {{ form.use_whatsapp }} <span>Use WhatsApp for communication and marketing</span>
+          </label>
+        </div>
+        <div class="field checkbox field-full">
+          <label class="checkline">
+            {{ form.agree_tos }} <span>I agree to the <a href="/terms" class="link">Terms of Service</a></span>
+          </label>
+          {% if form.agree_tos.errors %}
+            <p class="error">{{ form.agree_tos.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="why-partner section">
+  <div class="container">
+    <h2>Why Partner with Us</h2>
+    <div class="grid">
+      <div class="card">Whitelisted PMS & AIFs</div>
+      <div class="card">No need to sift through thousands of strategies</div>
+      <div class="card">Complete sales support & client servicing</div>
+      <div class="card">Tier-2 focused growth ecosystem</div>
+      <div class="card">We Sell, You Bring Investor (WSYBI)</div>
+      <div class="card">Digital onboarding & risk profiling</div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h3>Let’s build India’s next wave of wealth management — together.</h3>
+    <a href="#top" class="btn btn--ghost-white">Become a Partner Now</a>
+  </div>
+</section>
+{% endblock %}

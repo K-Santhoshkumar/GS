@@ -1,0 +1,89 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Employee Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/broker_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="container">
+
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <div>
+      <h1>
+        Welcome, {{ request.user.get_full_name|default:request.user.username }}
+      </h1>
+      <p class="subtitle">Employee account overview</p>
+    </div>
+
+    <div class="header-actions">
+      <a href="{% url 'users:employee:employee_profile' %}" class="btn btn-primary">
+        {% if is_completed %}
+          View Profile
+        {% else %}
+          Complete Profile
+        {% endif %}
+      </a>
+
+      <form method="post" action="{% url 'users:employee:employee_logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost">Logout</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status-bar">
+    {% if is_completed %}
+      <span class="status success">✔ Profile Completed</span>
+    {% else %}
+      <span class="status warning">⚠ Profile Incomplete</span>
+    {% endif %}
+  </div>
+
+  <!-- CARDS -->
+  <div class="cards">
+
+    <div class="card">
+      <h3>Profile Status</h3>
+      {% if is_completed %}
+        <span class="badge success">Completed</span>
+      {% else %}
+        <span class="badge warning">Pending</span>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Employee Code</h3>
+      {% if profile and profile.employee_code %}
+        <p>{{ profile.employee_code }}</p>
+      {% else %}
+        <p>—</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Contact Number</h3>
+      {% if profile and profile.contact_phone %}
+        <p>{{ profile.contact_phone }}</p>
+      {% else %}
+        <p>—</p>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h3>Designation</h3>
+      {% if profile and profile.designation %}
+        <p>{{ profile.designation }}</p>
+      {% else %}
+        <p>—</p>
+      {% endif %}
+    </div>
+
+  </div>
+
+</section>
+{% endblock %}

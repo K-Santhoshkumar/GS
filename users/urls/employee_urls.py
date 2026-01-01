@@ -18,6 +18,12 @@ urlpatterns = [
         name="employee_profile",
     ),
     path(
+    "dashboard/",
+    employee_required(employee_view.employee_dashboard),
+    name="employee_dashboard",
+    ),
+
+    path(
         "logout/",
         employee_required(employee_view.employee_logout),
         name="employee_logout",

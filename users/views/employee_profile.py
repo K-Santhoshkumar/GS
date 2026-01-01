@@ -9,8 +9,11 @@ from config.decorators import employee_required
 from users.forms.employee_forms import EmployeeStep1Form, EmployeeStep2Form
 from users.models.employeeProfile import EmployeeProfile
 
-# Required fields to unlock Step 2
-CORE_MANDATORY = ["name", "employee_code", "contact_phone"]
+
+# =====================================================
+# CONFIG (BROKER STYLE)
+# =====================================================
+CORE_MANDATORY = ["name", "employee_code", "contact_phone", "email"]
 
 FORM_MAP = {
     1: EmployeeStep1Form,
@@ -18,11 +21,13 @@ FORM_MAP = {
 }
 
 
+# =====================================================
+# EMPLOYEE PROFILE (MULTI STEP)
+# =====================================================
 @login_required
 @employee_required
 def employee_profile(request):
 
-    # Load profile
     profile, _ = EmployeeProfile.objects.get_or_create(
         user=request.user,
         defaults={
@@ -31,25 +36,33 @@ def employee_profile(request):
         },
     )
 
-    # Read step
+    # -------------------------------------------------
+    # STEP READ
+    # -------------------------------------------------
     try:
         step = int(request.GET.get("step", 1))
-    except:
+    except ValueError:
         raise Http404()
 
-    if not 1 <= step <= 2:
+    if step not in FORM_MAP:
         raise Http404()
 
-    # Don't allow Step 2 without Step 1
-    if step == 2:
+    # -------------------------------------------------
+    # STEP ENFORCEMENT (same as broker/customer)
+    # -------------------------------------------------
+    if step > 1:
         missing = [f for f in CORE_MANDATORY if not getattr(profile, f)]
         if missing:
-            messages.info(request, "Please complete Step 1 first.")
-            return redirect(reverse("users:employee:employee_profile") + "?step=1")
+            messages.info(request, "Complete Step 1 first.")
+            return redirect(
+                reverse("users:employee:employee_profile") + "?step=1"
+            )
 
     FormClass = FORM_MAP[step]
 
-    # POST submission
+    # -------------------------------------------------
+    # POST
+    # -------------------------------------------------
     if request.method == "POST":
         action = request.POST.get("action", "save")
         form = FormClass(request.POST, instance=profile)
@@ -60,12 +73,19 @@ def employee_profile(request):
                 inst.user = request.user
                 inst.save()
 
-            # Navigation
+                sync_completion_status(inst)
+
+            messages.success(request, "Saved successfully.")
+
             if action == "prev":
-                return redirect(reverse("users:employee:employee_profile") + "?step=1")
+                return redirect(
+                    reverse("users:employee:employee_profile") + f"?step={step-1}"
+                )
 
             if action == "next":
-                return redirect(reverse("users:employee:employee_profile") + "?step=2")
+                return redirect(
+                    reverse("users:employee:employee_profile") + f"?step={step+1}"
+                )
 
             if action == "finish":
                 return redirect(reverse("users:employee:employee_home"))
@@ -75,23 +95,22 @@ def employee_profile(request):
             )
 
         messages.error(request, "Fix the errors below.")
+
     else:
         form = FormClass(instance=profile)
 
     return render_step(request, profile, form, step)
 
 
+# =====================================================
+# RENDER + PROGRESS
+# =====================================================
 def render_step(request, profile, form, step):
 
-    # Progress calculation
-    all_fields = list(EmployeeStep1Form().fields.keys()) + list(
-        EmployeeStep2Form().fields.keys()
-    )
+    percent = calculate_progress(profile)
 
-    filled = sum(1 for f in all_fields if getattr(profile, f, None))
-    percent = int((filled / len(all_fields)) * 100)
-
-    fields_list = [{"field": b, "uploaded": None} for b in form]
+    # 🔥 REQUIRED FOR TEMPLATE
+    fields_list = [{"field": field} for field in form]
 
     return render(
         request,
@@ -99,9 +118,46 @@ def render_step(request, profile, form, step):
         {
             "step": step,
             "form": form,
-            "fields_list": fields_list,
+            "profile": profile,
+            "fields_list": fields_list,   # ✅ FIX
             "percent_complete": percent,
             "step_done_s1": all(getattr(profile, f) for f in CORE_MANDATORY),
             "step_done_s2": bool(profile.address),
         },
     )
+
+
+# =====================================================
+# PROGRESS + COMPLETION (BROKER STYLE)
+# =====================================================
+def calculate_progress(profile):
+
+    required_fields = [
+        "name",
+        "employee_code",
+        "contact_phone",
+        "email",
+        "designation",
+        "address",
+    ]
+
+    filled = 0
+    for field in required_fields:
+        val = getattr(profile, field, None)
+        if val and str(val).strip():
+            filled += 1
+
+    return int((filled / len(required_fields)) * 100)
+
+
+def sync_completion_status(profile):
+
+    percent = calculate_progress(profile)
+
+    if percent == 100 and not profile.is_profile_completed:
+        profile.is_profile_completed = True
+        profile.save(update_fields=["is_profile_completed"])
+
+    elif percent < 100 and profile.is_profile_completed:
+        profile.is_profile_completed = False
+        profile.save(update_fields=["is_profile_completed"])

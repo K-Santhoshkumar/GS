@@ -7,21 +7,10 @@ from users.models.employeeProfile import EmployeeProfile
 from users.validators.validators import (
     pan_validator,
     mobile_validator,
-    MigrationSafeFileValidators,
 )
 
 
 class CustomerProfile(models.Model):
-    # validators
-    """pan_validator = RegexValidator(
-        regex=r"^[A-Z]{5}[0-9]{4}[A-Z]$",
-        message="Enter a valid PAN (e.g. ABCDE1234F). Use uppercase letters.",
-    )
-    mobile_validator = RegexValidator(
-        regex=r"^[6-9]\d{9}$",
-        message="Enter a valid 10-digit Indian mobile number starting with 6-9.",
-    )"""
-
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,  # delete profile when user deleted
@@ -29,12 +18,13 @@ class CustomerProfile(models.Model):
     )
 
     name = models.CharField(max_length=200)
-    pan = models.CharField(max_length=10, validators=[pan_validator], unique=True)
+    pan = models.CharField(max_length=10, validators=[pan_validator],null=True,
+    blank=True,)
     contact_phone = models.CharField(
         max_length=10, validators=[mobile_validator], unique=True
     )
     email = models.EmailField(blank=True, null=True)
-
+    is_profile_completed = models.BooleanField(default=False)
     address = models.TextField(blank=True)
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=100, blank=True)
@@ -58,7 +48,7 @@ class CustomerProfile(models.Model):
         BrokerProfile,
         on_delete=models.SET_NULL,
         null=True,
-        default=get_default_broker,
+        blank=True,
         related_name="customers",
     )
 
@@ -66,20 +56,27 @@ class CustomerProfile(models.Model):
         EmployeeProfile,
         on_delete=models.SET_NULL,
         null=True,
-        default=get_default_employee,
+        blank=True,
         related_name="customers",
     )
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["pan"]),
+            models.Index(fields=["email"]),
             models.Index(fields=["contact_phone"]),
         ]
+        constraints = [
+        models.UniqueConstraint(
+            fields=["pan"],
+            condition=models.Q(pan__isnull=False),
+            name="unique_pan_when_present",
+        )
+    ]
 
     def __str__(self):
         return f"{self.name} ({self.pan})"

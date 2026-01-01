@@ -1,0 +1,37 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Compare PMS — Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="section fade-up">
+  <div class="container">
+    <h1>Compare PMS</h1>
+
+    <div class="card">
+      <table style="width:100%;border-collapse:collapse">
+        <tr>
+          <th>Name</th>
+          <th>Provider</th>
+          <th>1Y Return</th>
+          <th>AUM</th>
+        </tr>
+        {% for s in schemes %}
+        <tr>
+          <td>{{ s.ia_name }}</td>
+          <td>{{ s.provider.name }}</td>
+          <td>{{ s.one_year_return }}%</td>
+          <td>{{ s.aum }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

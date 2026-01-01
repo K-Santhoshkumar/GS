@@ -1,0 +1,39 @@
+{% extends "users/broker_base.html" %}
+
+{% block broker_content %}
+
+<h1 class="page-title">
+  Welcome, {{ request.user.get_full_name|default:request.user.username }}
+</h1>
+<p class="subtitle">Broker account overview</p>
+
+{% if is_completed %}
+  <p class="profile-status success">✔ Profile Completed</p>
+{% else %}
+  <p class="profile-status warning">⚠ Profile Incomplete</p>
+{% endif %}
+
+<div class="cards">
+  <div class="card">
+    <h4>Profile Status</h4>
+    <span class="badge success">Completed</span>
+  </div>
+
+  <div class="card">
+    <h4>Account Type</h4>
+    <p>{{ profile.get_account_type_display }}</p>
+  </div>
+
+  <div class="card">
+    <h4>ARN / APRN</h4>
+    <p>{{ profile.arn_code }}{% if profile.aprn_code %} / {{ profile.aprn_code }}{% endif %}</p>
+  </div>
+
+  <div class="card">
+  <h4>Products Allowed</h4>
+  <p>{{ profile.products_allowed|join:", " }}</p>
+</div>
+
+</div>
+
+{% endblock %}

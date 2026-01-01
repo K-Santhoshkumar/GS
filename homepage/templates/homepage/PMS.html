@@ -1,0 +1,261 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+
+
+{% block title %}Portfolio Management Services (PMS) in India — Guide & Tools | Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/button.css' %}">
+<link rel="stylesheet" href="{% static 'css/pms.css' %}">
+{% endblock %}
+
+
+<style>
+  body::before { content: "✅ CSS loaded"; color: green; position: fixed; top: 10px; right: 10px; }
+</style>
+
+{% block content %}
+
+<section class="pms-hero" aria-labelledby="pms-hero-heading">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <h1 id="pms-hero-heading">Portfolio Management Services (PMS) — Explained, Compared, and Curated</h1>
+      <p class="lead">Everything you need to evaluate PMS in India — how it works, types, fees, taxation, risks, and when it fits your goals. Explore top PMS strategies or compare them side‑by‑side, the Goalstox way.</p>
+      <div class="hero-cta">
+        <a class="btn btn--primary" href="{% url 'homepage:pms_whitelisted' %}">Explore Top PMS</a>
+        <a class="btn btn--ghost" href="/pms/compare">Compare All</a>
+        <a class="btn btn--ghost" href="{% url 'homepage:get_in_touch' %}">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="info-card">
+        <h3>Quick facts</h3>
+        <ul class="facts">
+          <li><strong>Minimum investment:</strong> ₹50 lakh (SEBI mandated)</li>
+          <li><strong>Ownership:</strong> Stocks held in your demat, manager takes discretionary calls</li>
+          <li><strong>Reporting:</strong> Portfolio & performance reports, typically monthly/quarterly</li>
+          <li><strong>Who is it for?</strong> Investors seeking concentrated, manager‑led equity exposure</li>
+        </ul>
+        <a class="link" href="{% url 'homepage:get_in_touch' %}">Talk to us →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="tab-nav" aria-label="Section navigation">
+  <div class="container tab-row">
+    <a href="#what-is" class="tab">What is PMS</a>
+    <a href="#how-it-works" class="tab">How it works</a>
+    <a href="#types" class="tab">Types</a>
+    <a href="#pms-vs-mf" class="tab">PMS vs Mutual Funds</a>
+    <a href="#fees" class="tab">Fees & Minimums</a>
+    <a href="#tax" class="tab">Taxation</a>
+    <a href="#risks" class="tab">Risks & Suitability</a>
+    <a href="#goalstox" class="tab">How Goalstox helps</a>
+  </div>
+</nav>
+
+<section id="what-is" class="section">
+  <div class="container two-col">
+    <div class="content">
+      <h2>What is a Portfolio Management Service?</h2>
+      <p>PMS is a SEBI‑regulated service where a professional portfolio manager constructs and manages an equity (or multi‑asset) portfolio on your behalf. Unlike a mutual fund, your holdings sit in your demat account and can be more concentrated, customized, and tax‑aware.</p>
+      <ul class="bullets">
+        <li>Individually managed account, not a pooled vehicle</li>
+        <li>Higher flexibility on position sizes, cash levels, and mandates</li>
+        <li>Transparent ownership and direct corporate action benefits</li>
+      </ul>
+    </div>
+    <aside class="side-card">
+      <h3>Good to know</h3>
+      <p>SEBI requires PMS providers to disclose strategy, risks, and performance. Always assess <em>process</em> and <em>people</em>, not just past returns.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="how-it-works" class="section alt">
+  <div class="container grid-3">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Onboarding & KYC</h3>
+      <p>Complete KYC, risk profiling, and open a PMS account linked to your demat. Define your investment objective and any constraints.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Portfolio Construction</h3>
+      <p>The manager builds positions over time as per the chosen mandate (e.g., flexi‑cap, small‑mid, value/quality). Execution is discretionary unless you choose non‑discretionary/advisory.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Monitoring & Reporting</h3>
+      <p>Performance, holdings, transactions, and risk metrics are reported periodically. You’ll receive corporate actions directly in your demat.</p>
+    </div>
+  </div>
+</section>
+
+<section id="types" class="section">
+  <div class="container">
+    <h2>Types of PMS</h2>
+    <div class="cards-3">
+      <article class="card">
+        <h3>Discretionary</h3>
+        <p>The portfolio manager takes buy/sell decisions without prior client approval, within the agreed mandate. Most common format.</p>
+      </article>
+      <article class="card">
+        <h3>Non‑Discretionary</h3>
+        <p>The manager suggests trades, but execution happens after your confirmation. Involves more back‑and‑forth, may impact timing.</p>
+      </article>
+      <article class="card">
+        <h3>Advisory</h3>
+        <p>Advice only — you execute via your broker account. Less common at PMS ticket sizes; useful if you want full trade control.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="pms-vs-mf" class="section alt">
+  <div class="container">
+    <h2>PMS vs Mutual Funds</h2>
+    <div class="compare">
+      <div class="compare-col">
+        <h3>PMS</h3>
+        <ul class="ticks">
+          <li>Direct ownership in demat</li>
+          <li>Customizable & concentrated</li>
+          <li>Potential for tax‑aware harvesting</li>
+        </ul>
+      </div>
+      <div class="compare-col">
+        <h3>Mutual Funds</h3>
+        <ul class="ticks">
+          <li>Pooled structure, low minimums</li>
+          <li>Highly diversified & rules‑based</li>
+          <li>Lower costs, strong suitability for most goals</li>
+        </ul>
+      </div>
+    </div>
+    <div class="note">Both have a role. PMS suits investors who understand equity drawdowns, value process over hype, and can commit capital long‑term.</div>
+  </div>
+</section>
+
+<section id="fees" class="section">
+  <div class="container two-col">
+    <div class="content">
+      <h2>Fees & Minimums</h2>
+      <ul class="bullets">
+        <li><strong>Minimum investment:</strong> ₹50,00,000 (SEBI mandated)</li>
+        <li><strong>Fees:</strong> Fixed (e.g., 1–2% p.a.) and/or performance fee (e.g., 10–20% over hurdle)</li>
+        <li><strong>Other costs:</strong> Brokerage, custody, audit, and taxes</li>
+      </ul>
+      <p class="muted">Exact terms vary by provider and strategy. We evaluate the <em>net</em> investor experience, not just the headline fee.</p>
+    </div>
+    <aside class="side-card">
+      <h3>See top strategies</h3>
+      <p>We shortlist PMS with robust process, capacity discipline, risk controls, and alignment.</p>
+      <a class="btn btn--secondary" href="/pms/top">View Top PMS</a>
+    </aside>
+  </div>
+</section>
+
+<section id="tax" class="section alt">
+  <div class="container two-col">
+    <div class="content">
+      <h2>Taxation</h2>
+      <p>Capital gains are computed at the investor account level based on each security’s holding period. Corporate actions, dividends, and realized gains/losses flow to you directly. STT, stamp duty, and other levies apply as per trades.</p>
+      <ul class="bullets">
+        <li><strong>Equity STCG:</strong> as per prevailing slabs</li>
+        <li><strong>Equity LTCG:</strong> as per prevailing slabs with applicable exemptions/thresholds</li>
+        <li>Dividends are taxable in the investor’s hands</li>
+      </ul>
+      <p class="muted">Consult your tax advisor. We help you with organized reports for filing.</p>
+    </div>
+    <aside class="side-card">
+      <h3>Need clarity?</h3>
+      <p>Speak to us for a quick walkthrough.</p>
+      <a class="link" href="{% url 'homepage:get_in_touch' %}">Schedule a call →</a>
+    </aside>
+  </div>
+</section>
+
+<section id="risks" class="section">
+  <div class="container">
+    <h2>Risks & Suitability</h2>
+    <div class="cards-3">
+      <article class="card">
+        <h3>Market & Liquidity Risk</h3>
+        <p>Concentrated portfolios can be volatile. Expect drawdowns. Liquidity varies by market cap focus.</p>
+      </article>
+      <article class="card">
+        <h3>Manager & Process Risk</h3>
+        <p>Philosophy drift, capacity, and team stability matter. We underwrite the <em>process</em> beyond performance.</p>
+      </article>
+      <article class="card">
+        <h3>Behavioral Risk</h3>
+        <p>Timing entries/exits or abandoning process mid‑cycle can hurt outcomes. Align horizon with strategy cadence.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="goalstox" class="section alt">
+  <div class="container two-col">
+    <div class="content">
+      <h2>How Goalstox Curates PMS</h2>
+      <ul class="ticks">
+        <li>Shortlists based on process quality, risk controls, and capacity discipline</li>
+        <li>Looks beyond headline returns to drawdown patterns and persistence</li>
+        <li>Simplifies reporting, onboarding, and suitability mapping to your goals</li>
+      </ul>
+      <div class="cta-inline">
+        <a class="btn btn--primary" href="/pms/top">Explore Top PMS</a>
+        <a class="btn btn--ghost" href="/pms/compare">Compare All</a>
+        <a class="btn btn--ghost" href="{% url 'homepage:get_in_touch' %}"">Get in touch</a>
+      </div>
+    </div>
+    <aside class="side-card">
+      <h3>Want curated suggestions?</h3>
+      <p>Tell us your goals and constraints; we’ll match suitable PMS and explain the trade‑offs.</p>
+      <a class="btn btn--secondary" href="/get-in-touch">Start a conversation</a>
+    </aside>
+  </div>
+</section>
+
+<section class="navigator section">
+  <div class="container nav-grid">
+    <a class="nav-card" href="/pms/top">
+      <div class="nav-icon" aria-hidden="true">🏆</div>
+      <h3>Top PMS</h3>
+      <p>Curated managers with robust process and sensible capacity.</p>
+      <span class="arrow">Explore →</span>
+    </a>
+    <a class="nav-card" href="/pms/compare">
+      <div class="nav-icon" aria-hidden="true">📊</div>
+      <h3>Compare All</h3>
+      <p>Line‑up strategies by returns, drawdowns, fees, and style.</p>
+      <span class="arrow">Compare →</span>
+    </a>
+    <a class="nav-card" href="{% url 'homepage:get_in_touch' %}">
+      <div class="nav-icon" aria-hidden="true">🤝</div>
+      <h3>Get in touch</h3>
+      <p>Prefer a human walkthrough? Our advisors are a click away.</p>
+      <span class="arrow">Contact →</span>
+    </a>
+    <a class="nav-card disabled" href="#">
+      <div class="nav-icon" aria-hidden="true">✨</div>
+      <h3>Others</h3>
+      <p>More tools & insights (coming soon).</p>
+      <span class="arrow">—</span>
+    </a>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h3>Ready to explore PMS with clarity?</h3>
+    <p>Get a curated shortlist aligned to your objectives — not a firehose of options.</p>
+    <a class="btn btn--ghost-white" href="{% url 'homepage:get_in_touch' %}">Talk to Goalstox</a>
+  </div>
+</section>
+
+{% endblock %}

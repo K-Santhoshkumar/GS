@@ -1,0 +1,42 @@
+{% extends "users/broker_base.html" %}
+
+{% block broker_content %}
+
+<h1 class="page-title">My Customers</h1>
+
+{% if customers %}
+<div class="customer-grid">
+  {% for c in customers %}
+  <a href="{% url 'users:broker:customer_detail' c.id %}" class="customer-card">
+    <div class="avatar">
+      {{ c.user.get_full_name|slice:":1"|upper }}
+    </div>
+    <div class="customer-info">
+      <h3>{{ c.user.get_full_name }}</h3>
+      <p>{{ c.user.email }}</p>
+      <p class="phone">📞 {{ c.contact_phone }}</p>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<div class="pagination">
+  {% if customers.has_previous %}
+    <a class="page-link" href="?page={{ customers.previous_page_number }}">Prev</a>
+  {% endif %}
+
+  <span class="page-current">
+    Page {{ customers.number }}
+  </span>
+
+  {% if customers.has_next %}
+    <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+
+{% else %}
+<p class="empty-text">No customers assigned.</p>
+{% endif %}
+
+{% endblock %}

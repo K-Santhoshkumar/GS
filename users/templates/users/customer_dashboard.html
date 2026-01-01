@@ -1,0 +1,53 @@
+{% extends "users/customer_base.html" %}
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block dashboard_content %}
+
+<div class="dashboard-header">
+  <h1>
+    Welcome, {{ request.user.get_full_name|default:request.user.username }}
+  </h1>
+  <p class="subtitle">Customer account overview</p>
+</div>
+
+<div class="status-bar">
+  {% if is_completed %}
+    <span class="status success">✔ Profile Completed</span>
+  {% else %}
+    <span class="status warning">⚠ Profile Incomplete</span>
+  {% endif %}
+</div>
+
+<div class="cards">
+
+  <div class="card">
+    <h3>Profile Status</h3>
+    <span class="badge {% if is_completed %}success{% else %}warning{% endif %}">
+      {% if is_completed %}Completed{% else %}Pending{% endif %}
+    </span>
+  </div>
+
+  <div class="card">
+    <h3>PAN Number</h3>
+    <p>{{ profile.pan|default:"—" }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Contact Number</h3>
+    <p>{{ profile.contact_phone|default:"—" }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Location</h3>
+    <p>
+      {% if profile.city and profile.state %}
+        {{ profile.city }}, {{ profile.state }}
+      {% else %}
+        —
+      {% endif %}
+    </p>
+  </div>
+
+</div>
+
+{% endblock %}

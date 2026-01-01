@@ -5,9 +5,7 @@ from django.db import models
 from users.models.user import CustomUser
 from django.conf import settings
 from users.validators.validators import (
-    pan_validator,
     mobile_validator,
-    MigrationSafeFileValidators,
 )
 
 
@@ -28,6 +26,7 @@ class EmployeeProfile(models.Model):
     designation = models.CharField(max_length=100, blank=True)
     address = models.TextField(blank=True)
     email = models.EmailField(blank=True, null=True)
+    is_profile_completed = models.BooleanField(default=False)
     # ---- 5 Dummy Fields ----
     dummy1 = models.CharField(max_length=100, blank=True, null=True)
     dummy2 = models.CharField(max_length=100, blank=True, null=True)
@@ -35,7 +34,7 @@ class EmployeeProfile(models.Model):
     dummy4 = models.CharField(max_length=100, blank=True, null=True)
     dummy5 = models.CharField(max_length=100, blank=True, null=True)
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     joining_date = models.DateField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

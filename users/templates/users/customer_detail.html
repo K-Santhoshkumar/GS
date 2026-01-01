@@ -1,0 +1,18 @@
+{% extends "users/broker_base.html" %}
+
+{% block broker_content %}
+
+<a href="{% url 'users:broker:customers_list' %}" class="back-link">← Back to Customers</a>
+
+<h1 class="page-title">{{ customer.user.get_full_name }}</h1>
+
+<div class="detail-card">
+  <div class="detail-row"><strong>Email</strong><span>{{ customer.user.email }}</span></div>
+  <div class="detail-row"><strong>Phone</strong><span>{{ customer.contact_phone }}</span></div>
+  <div class="detail-row"><strong>PAN</strong><span>{{ customer.pan }}</span></div>
+  <div class="detail-row"><strong>Address</strong><span>{{ customer.address }}</span></div>
+  <div class="detail-row"><strong>City</strong><span>{{ customer.city }}</span></div>
+  <div class="detail-row"><strong>State</strong><span>{{ customer.state }}</span></div>
+</div>
+
+{% endblock %}

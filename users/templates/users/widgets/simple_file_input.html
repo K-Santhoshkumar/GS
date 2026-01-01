@@ -1,11 +1,4 @@
 <div class="simple-file-input">
   <input type="file" name="{{ widget.name }}" {% include
-  "django/forms/widgets/attrs.html" %} /> {% if widget.value %}
-  <p class="uploaded-file">
-    <strong>Uploaded:</strong>
-    <a href="{{ widget.value.url }}" target="_blank">
-      {{ widget.value.name|slice:"25" }}
-    </a>
-  </p>
-  {% endif %}
+  "django/forms/widgets/attrs.html" %} />
 </div>

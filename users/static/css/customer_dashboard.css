@@ -1,0 +1,259 @@
+/* =========================
+   GLOBAL RESET & BASE
+========================= */
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  background: #f5f6f8;
+  color: #2f2f2f;
+}
+
+/* =========================
+   MOBILE HEADER
+========================= */
+.mobile-header {
+  display: none;
+  align-items: center;
+  padding: 14px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.menu-toggle {
+  font-size: 22px;
+  background: none;
+  border: none;
+  color: #2f2f2f;
+  cursor: pointer;
+}
+
+.mobile-title {
+  margin-left: 16px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* =========================
+   SIDEBAR (BROKER STYLE)
+========================= */
+.sidebar {
+  width: 250px;
+  background: #f0f2f5;
+  border-right: 1px solid #e5e7eb;
+  padding: 22px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.close-btn {
+  display: none;
+  font-size: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Sidebar links */
+.sidebar-nav a,
+.sidebar-nav button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav button:hover {
+  background: #e5e7eb;
+}
+
+/* Active menu */
+.sidebar-nav .active {
+  background: #e2e8f0;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.logout-btn {
+  margin-top: 24px;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+.dashboard-content {
+  flex: 1;
+  padding: 36px;
+}
+
+/* =========================
+   HEADER
+========================= */
+.dashboard-header {
+  margin-bottom: 22px;
+}
+
+.dashboard-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* =========================
+   STATUS BAR
+========================= */
+.status-bar {
+  margin-bottom: 24px;
+}
+
+.status {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status.success {
+  color: #15803d;
+}
+
+.status.warning {
+  color: #b45309;
+}
+
+/* =========================
+   CARDS (BROKER STYLE)
+========================= */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.card p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* =========================
+   BADGES
+========================= */
+.badge {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.badge.success {
+  color: #15803d;
+}
+
+.badge.warning {
+  color: #b45309;
+}
+
+/* =========================
+   PAGE TITLE
+========================= */
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+}
+
+/* =========================
+   RESPONSIVE (MOBILE)
+========================= */
+@media (max-width: 768px) {
+
+  .mobile-header {
+    display: flex;
+  }
+
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    height: 100%;
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .close-btn {
+    display: block;
+  }
+
+  .dashboard-content {
+    padding: 22px;
+  }
+}
+
+/* =========================
+   DESKTOP
+========================= */
+@media (min-width: 769px) {
+  .mobile-header {
+    display: none;
+  }
+
+  .sidebar {
+    position: static;
+  }
+}

@@ -1,0 +1,61 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/broker_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ===== MOBILE TOP BAR ===== -->
+<div class="mobile-topbar">
+  <button id="menuToggle" class="menu-btn">☰</button>
+  <span class="topbar-title">Broker Panel</span>
+</div>
+
+<!-- BACKDROP -->
+<div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+
+<div class="dashboard-layout">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <h3 class="sidebar-title">Broker Panel</h3>
+
+      <nav class="sidebar-nav">
+        <a href="{% url 'users:broker:broker_dashboard' %}"
+           class="{% if request.resolver_match.url_name == 'broker_dashboard' %}active{% endif %}">
+          🏠 Dashboard
+        </a>
+
+        <a href="{% url 'users:broker:customers_list' %}"
+           class="{% if request.resolver_match.url_name == 'customers_list' %}active{% endif %}">
+          👥 Customers
+        </a>
+
+        <a href="{% url 'users:broker:broker_profile' %}"
+           class="{% if request.resolver_match.url_name == 'broker_profile' %}active{% endif %}">
+          👤 Profile
+        </a>
+
+        <form method="post" action="{% url 'users:broker:broker_logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="logout-btn">🚪 Logout</button>
+        </form>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <main class="dashboard-content">
+    {% block broker_content %}{% endblock %}
+  </main>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/broker_dashboard.js' %}"></script>
+{% endblock %}

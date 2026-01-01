@@ -54,3 +54,62 @@ def block_logged_in_for_role(role_name, redirect_to):
         return wrapper
 
     return decorator
+from django.shortcuts import redirect
+from django.contrib import messages
+from functools import wraps
+
+
+ROLE_CONFIG = {
+    "broker": {
+        "profile_attr": "broker_profile",
+        "home_url": "users:broker:broker_home",
+    },
+    "customer": {
+        "profile_attr": "customer_profile",
+        "home_url": "users:customer:customer_home",
+    },
+    "employee": {
+        "profile_attr": "employee_profile",
+        "home_url": "users:employee:employee_home",
+    },
+}
+
+
+def dashboard_access_required(role):
+    """
+    Polymorphic dashboard access decorator.
+
+    Enforces:
+    - profile exists
+    - profile.is_profile_completed == True
+    - profile.is_active == True
+
+    Works for broker / customer / employee
+    """
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapper(request, *args, **kwargs):
+
+            config = ROLE_CONFIG.get(role)
+
+            if not config:
+                raise ValueError(f"Invalid role '{role}' passed to decorator")
+
+            profile = getattr(request.user, config["profile_attr"], None)
+
+            if (
+                not profile
+                or not profile.is_profile_completed
+                or not profile.is_active
+            ):
+                messages.warning(
+                    request,
+                    "Complete and activate your profile to access dashboard."
+                )
+                return redirect(config["home_url"])
+
+            return view_func(request, *args, **kwargs)
+
+        return wrapper
+    return decorator

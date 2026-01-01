@@ -1,0 +1,29 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Top PMS — Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/theme.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="section fade-up">
+  <div class="container">
+    <h1>Top PMS Strategies</h1>
+    <p>Shortlisted based on process, discipline, and risk management.</p>
+
+    <div class="grid-3" style="margin-top:40px">
+      {% for scheme in schemes %}
+      <div class="card">
+        <h3>{{ scheme.ia_name }}</h3>
+        <p>{{ scheme.provider.name }}</p>
+        <p class="muted">AUM: ₹{{ scheme.aum }} Cr</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

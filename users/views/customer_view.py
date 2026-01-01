@@ -8,14 +8,17 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, HttpResponseForbidden
-
 from otps.services import generate_otp, verify_otp, invalidate_existing_otps
 from otps.models import OTPPurpose
 
 # ✅ Only mandatory imports for authorization & blocking
 from config.permissions import is_customer
-from config.decorators import customer_required, block_logged_in_for_role
-
+from config.decorators import customer_required, block_logged_in_for_role, dashboard_access_required
+from users.models.customerProfile import CustomerProfile
+from users.views.customer_profile import calculate_progress
+from users.utils.dummy_relations import get_default_broker, get_default_employee
+from users.models.brokerProfile import BrokerProfile
+from users.models.employeeProfile import EmployeeProfile
 User = get_user_model()
 
 
@@ -65,60 +68,88 @@ def send_customer_otp(request):
 
     return JsonResponse({"success": True, "message": "OTP sent"})
 
-
 @ensure_csrf_cookie
-# @block_logged_in_for_role("customer", "users:customer_home")
 def customer_register(request):
 
-    if request.method == "POST":
-        email = request.POST.get("email", "").strip()
-        otp = request.POST.get("otp_code", "").strip()
-        phone = request.POST.get("phone", "").strip()
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Email already exists.", "error")
-            return render(
-                request, "users/customer_register.html", {"email": email}, status=400
-            )
+    # -------------------------
+    # GET → render form
+    # -------------------------
+    if request.method == "GET":
+        return render(
+            request,
+            "users/customer_register.html",
+            {
+                "broker": request.GET.get("broker", ""),
+                "employee": request.GET.get("employee", ""),
+            },
+        )
 
-        if not verify_otp(otp, OTPPurpose.SIGNUP, email=email):
-            messages.error(request, "Invalid OTP.", "error")
-            return render(
-                request, "users/customer_register.html", {"email": email}, status=400
-            )
+    # -------------------------
+    # POST → process form
+    # -------------------------
+    email = request.POST.get("email", "").strip()
+    otp = request.POST.get("otp_code", "").strip()
+    phone = request.POST.get("phone", "").strip()
 
-        username = email.split("@")[0]
-        base, i = username, 1
-        while User.objects.filter(username=username).exists():
-            username = f"{base}{i}"
-            i += 1
+    # 🚨 THIS IS THE CRITICAL FIX
+    broker_code = request.POST.get("broker")
+    employee_id = request.POST.get("employee")
 
-        try:
-            with transaction.atomic():
-                user = User.objects.create_user(
-                    username=username, email=email, role="CUSTOMER"
-                )
-                user.set_unusable_password()
-                user.save()
-                profile = user.customer_profile
-                profile.contact_phone = phone
-                profile.save()
-                login(request, user)
+    if not verify_otp(otp, OTPPurpose.SIGNUP, email=email):
+        messages.error(request, "Invalid OTP.")
+        return redirect(request.path)
 
-            return redirect("users:customer:customer_home")
+    with transaction.atomic():
+        user = User.objects.create_user(
+            username=email.split("@")[0],
+            email=email,
+            role="CUSTOMER",
+        )
+        user.set_unusable_password()
+        user.save()
 
-        except Exception as e:
-            messages.error(request, "Registration Failed", "error")
-            print("Registration Error:", e)
-            return render(
-                request, "users/customer_register.html", {"email": email}, status=500
-            )
+        profile = user.customer_profile
+        profile.contact_phone = phone
 
-    return render(request, "users/customer_register.html")
+        # -------------------------
+        # RESOLVE BROKER
+        # -------------------------
+        broker = None
+        if broker_code:
+            broker = BrokerProfile.objects.filter(
+                broker_code=broker_code,
+                is_active=True,
+            ).first()
 
+        if broker is None:
+            broker = get_default_broker()
+
+        # -------------------------
+        # RESOLVE EMPLOYEE
+        # -------------------------
+        employee = None
+        if employee_id:
+            employee = EmployeeProfile.objects.filter(
+                employee_code=employee_id,   # ✅ CORRECT
+                is_active=True,
+            ).first()
+
+
+        if employee is None:
+            employee = get_default_employee()
+
+        # -------------------------
+        # ASSIGN (ALWAYS)
+        # -------------------------
+        profile.broker = broker
+        profile.employee = employee
+        profile.save()
+
+        login(request, user)
+        return redirect("users:customer:customer_home")
 
 @ensure_csrf_cookie
 @csrf_protect
-# @block_logged_in_for_role("customer", "users:customer_home")
 def customer_login(request):
 
     if request.method == "POST":
@@ -147,15 +178,78 @@ def customer_login(request):
 
     return render(request, "users/customer_login.html")
 
-
 @login_required
 @customer_required
 def customer_home(request):
-    return render(request, "users/customer_home.html")
+    profile = getattr(request.user, "customer_profile", None)
+
+    percent = 0
+    profile_complete = False
+    profile_active = False
+
+    if profile:
+        percent = calculate_progress(profile)
+        profile_complete = profile.is_profile_completed
+        profile_active = profile.is_active
+
+        # ✅ completed & active → dashboard
+        if (
+            request.path.endswith("/home/")
+            and profile_complete
+            and profile_active
+        ):
+            return redirect("users:customer:customer_dashboard")
+
+    return render(
+        request,
+        "users/customer_home.html",
+        {
+            "profile": profile,
+            "percent_complete": percent,
+            "profile_complete": profile_complete,
+            "profile_active": profile_active,
+        },
+    )
+
+
+# ======================================================
+# CUSTOMER DASHBOARD
+# ======================================================
+@login_required
+@customer_required
+@dashboard_access_required("customer")
+def customer_dashboard(request):
+    """
+    Main customer dashboard
+    Access allowed only if profile is completed & active
+    """
+
+    return render(
+        request,
+        "users/customer_dashboard.html",
+        {
+            "profile": request.user.customer_profile,
+            "is_completed": True,
+            "active_page": "dashboard",
+        },
+    )
+
+@login_required
+@customer_required
+def customer_investments(request):
+    return render(
+        request,
+        "users/customer_investments.html",
+        {
+            "profile": request.user.customer_profile,
+            "active_page": "investments",
+        },
+    )
 
 
 @require_POST
 @customer_required
 def customer_logout(request):
+    list(messages.get_messages(request))
     logout(request)
     return redirect("users:customer:customer_login")

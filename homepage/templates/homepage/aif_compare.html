@@ -1,0 +1,95 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Compare AIF — Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/aif_compare.css' %}">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+{% endblock %}
+
+{% block content %}
+
+<section class="aif-compare-section fade-up">
+  <div class="container">
+
+    <!-- HEADER -->
+    <div class="compare-header">
+      <div>
+        <h1>
+          <i class="fa-solid fa-scale-balanced"></i>
+          Compare AIF Schemes
+        </h1>
+        <p>{{ total_schemes }} schemes available</p>
+      </div>
+    </div>
+
+    <!-- TABLE CARD -->
+    <div class="compare-card">
+      <div class="table-wrapper">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th><i class="fa-solid fa-layer-group"></i> Scheme</th>
+              <th><i class="fa-solid fa-tags"></i> Category</th>
+              <th><i class="fa-solid fa-building-columns"></i> Provider</th>
+              <th class="right">
+                <i class="fa-solid fa-arrow-trend-up"></i> SI Return
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for s in schemes %}
+            <tr>
+              <td>
+                <div class="scheme-name">
+                  {{ s.ia_name|default:"—" }}
+                </div>
+                <div class="scheme-sub">
+                  {{ s.strategy_name|default:"Strategy not disclosed" }}
+                </div>
+              </td>
+
+              <td>
+                <span class="badge badge-{{ s.aif_category|lower }}">
+                  {{ s.get_aif_category_display }}
+                </span>
+              </td>
+
+              <td class="provider-cell">
+                {% if s.provider.logo_url %}
+                  <img src="{{ s.provider.logo_url }}" alt="{{ s.provider.name }}">
+                {% endif %}
+                <span>{{ s.provider.name }}</span>
+              </td>
+
+              <td class="right return-cell">
+                {% if s.si_return %}
+                  <span class="positive">
+                    {{ s.si_return }}%
+                  </span>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4" class="empty">
+                No AIF schemes available for comparison.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

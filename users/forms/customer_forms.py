@@ -1,14 +1,26 @@
 from django import forms
+from django.core.validators import RegexValidator
+
 from users.models.customerProfile import CustomerProfile
-from users.models.brokerProfile import BrokerProfile
-from users.models.employeeProfile import EmployeeProfile
 from users.utils.widgets import SimpleFileInput
+from users.validators.validators import pan_validator, mobile_validator
 
 
-# ---------------------------------------------------------
-# STEP 1 — BASIC DETAILS
-# ---------------------------------------------------------
+# =====================================================
+# COMMON VALIDATORS
+# =====================================================
+
+pincode_validator = RegexValidator(
+    regex=r"^\d{6}$",
+    message="Enter a valid 6-digit pincode."
+)
+
+
+# =====================================================
+# STEP 1 – BASIC DETAILS (MANDATORY)
+# =====================================================
 class CustomerStep1Form(forms.ModelForm):
+
     class Meta:
         model = CustomerProfile
         fields = [
@@ -20,27 +32,29 @@ class CustomerStep1Form(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-input"}),
             "pan": forms.TextInput(attrs={"class": "form-input"}),
-            "contact_phone": forms.TextInput(
-                attrs={"class": "form-input", "placeholder": "9876543210"}
-            ),
-            "email": forms.EmailInput(
-                attrs={"class": "form-input", "autocomplete": "email"}
-            ),
+            "contact_phone": forms.TextInput(attrs={"class": "form-input"}),
+            "email": forms.EmailInput(attrs={"class": "form-input"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        required_fields = {"name", "pan", "contact_phone"}
-
+        # ✅ Same rule as Broker Step-1
+        required = {"name", "pan", "contact_phone", "email"}
         for name, field in self.fields.items():
-            field.required = name in required_fields
+            field.required = name in required
 
 
-# ---------------------------------------------------------
-# STEP 2 — ADDRESS
-# ---------------------------------------------------------
+# =====================================================
+# STEP 2 – ADDRESS (OPTIONAL – BROKER STYLE)
+# =====================================================
 class CustomerStep2Form(forms.ModelForm):
+
+    pincode = forms.CharField(
+        required=False,
+        validators=[pincode_validator],
+    )
+
     class Meta:
         model = CustomerProfile
         fields = [
@@ -56,31 +70,24 @@ class CustomerStep2Form(forms.ModelForm):
             "pincode": forms.TextInput(attrs={"class": "form-input"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-# ---------------------------------------------------------
-# STEP 3 — DOCUMENTS + ASSIGNMENT
-# ---------------------------------------------------------
+        # 🔓 Allow skipping (exact broker behaviour)
+        for field in self.fields.values():
+            field.required = False
+
+
+# =====================================================
+# STEP 3 – DOCUMENTS (OPTIONAL – BROKER STYLE)
+# =====================================================
 class CustomerStep3Form(forms.ModelForm):
-
-    broker = forms.ModelChoiceField(
-        queryset=BrokerProfile.objects.filter(is_active=True),
-        required=False,
-        widget=forms.Select(attrs={"class": "form-input"}),
-    )
-
-    employee = forms.ModelChoiceField(
-        queryset=EmployeeProfile.objects.filter(is_active=True),
-        required=False,
-        widget=forms.Select(attrs={"class": "form-input"}),
-    )
 
     class Meta:
         model = CustomerProfile
         fields = [
             "pan_copy",
             "address_proof",
-            "broker",
-            "employee",
         ]
         widgets = {
             "pan_copy": SimpleFileInput(),
@@ -90,6 +97,6 @@ class CustomerStep3Form(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        for name, field in self.fields.items():
-            if not isinstance(field.widget, SimpleFileInput):
-                field.widget.attrs.setdefault("class", "form-input")
+        # 🔓 Do NOT block navigation
+        for field in self.fields.values():
+            field.required = False

@@ -1,0 +1,95 @@
+
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Connect with Goalstox — PMS & AIF India{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/get_in_touch.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="partner-hero">
+  <div class="container hero-grid">
+    <div class="hero-text">
+      <h1>Invest with <span class="highlight">Goalstox</span></h1>
+      <p class="contact-grid">
+        Invest to achieve financial goals. Do-it-yourself, or get in touch with us.
+
+      </p>
+      <ul class="keypoints">
+        <li><span class="icon phone" aria-hidden="true"></span><a href="tel:+919000000000">+91 90000 00000</a></li>
+                <li><span class="icon email" aria-hidden="true"></span><a href="mailto:invest@pms-aif-india.com">invest@pms-aif-india.com</a></li>
+                <li><span class="icon linkedin" aria-hidden="true"></span><a href="https://www.linkedin.com/company/goalstox/" target="_blank" rel="noopener">LinkedIn</a></li>
+      </ul>
+    </div>
+
+    <div class="hero-form">
+      <h3>Contact us</h3>
+      <p class="muted">Fill the form below, and our partnership team will reach out.</p>
+
+      
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form.source_url }}
+        <div class="field">
+          <label for="{{ form.name.id_for_label }}">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}<p class="error">{{ form.name.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.email.id_for_label }}">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="error">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.mobile.id_for_label }}">Mobile</label>
+          {{ form.mobile }}
+          {% if form.mobile.errors %}<p class="error">{{ form.mobile.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field field-full">
+          <label for="{{ form.query.id_for_label }}">Tell us about your setup</label>
+          {{ form.query }}
+          {% if form.query.errors %}<p class="error">{{ form.query.errors.0 }}</p>{% endif %}
+        </div>
+        <div class="field checkbox field-full">
+          <label class="checkline">
+            {{ form.use_whatsapp }} <span>Use WhatsApp for communication and marketing</span>
+          </label>
+        </div>
+        <div class="field checkbox field-full">
+          <label class="checkline">
+            {{ form.agree_tos }} <span>I agree to the <a href="/terms" class="link">Terms of Service</a></span>
+          </label>
+          {% if form.agree_tos.errors %}
+            <p class="error">{{ form.agree_tos.errors.0 }}</p>
+          {% endif %}
+        </div>
+        <div class="actions">
+          <button type="submit" class="btn btn--primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="why-partner section">
+  <div class="container">
+    <h2>Why invest with Us</h2>
+    <div class="grid">
+      <div class="card">Whitelisted PMS & AIFs</div>
+      <div class="card">No need to sift through thousands of strategies</div>
+      <div class="card">Goal based, curated investment opportunities</div>
+      <div class="card">Real human based support</div>
+  
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h3>Let’s build India’s next wave of wealth management — together.</h3>
+    <a href="#top" class="btn btn--ghost-white">Contact us</a>
+  </div>
+</section>
+{% endblock %}

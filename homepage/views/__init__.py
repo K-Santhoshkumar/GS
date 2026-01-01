@@ -1,1 +1,1 @@
-from .home import home_view
+from .generic_views import *

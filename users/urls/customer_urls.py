@@ -19,6 +19,16 @@ urlpatterns = [
         name="customer_profile",
     ),
     path(
+    "dashboard/",
+    customer_required(customer_view.customer_dashboard),
+    name="customer_dashboard",
+    ),
+    path(
+        "investments/",
+        customer_required(customer_view.customer_investments),
+        name="customer_investments",
+    ),
+    path(
         "logout/",
         customer_required(customer_view.customer_logout),
         name="customer_logout",

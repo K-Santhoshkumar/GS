@@ -1,0 +1,64 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/customer_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- MOBILE HEADER -->
+<header class="mobile-header">
+  <button class="menu-toggle" id="menuToggle">☰</button>
+  <span class="mobile-title">Customer</span>
+</header>
+
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+      <h2>Customer</h2>
+      <button class="close-btn" id="closeSidebar">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a href="{% url 'users:customer:customer_dashboard' %}"
+         class="{% if active_page == 'dashboard' %}active{% endif %}">
+        📊 Dashboard
+      </a>
+
+      <a href="{% url 'users:customer:customer_profile' %}"
+         class="{% if active_page == 'profile' %}active{% endif %}">
+        👤 Profile
+      </a>
+
+      <a href="{% url 'users:customer:customer_investments' %}"
+         class="{% if active_page == 'investments' %}active{% endif %}">
+        💼 Investments
+      </a>
+
+      <form method="post" action="{% url 'users:customer:customer_logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">
+          🚪 Logout
+        </button>
+      </form>
+
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-content">
+    {% block dashboard_content %}{% endblock %}
+  </main>
+
+</div>
+
+{% block extra_js %}
+<script src="{% static 'js/customer_dashboard.js' %}"></script>
+{% endblock %}
+
+{% endblock %}

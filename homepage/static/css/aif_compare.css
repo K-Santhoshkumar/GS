@@ -1,0 +1,146 @@
+.aif-compare-section {
+  padding: 40px 0;
+  background: linear-gradient(135deg, #f4f7ff, #fdfefe);
+}
+
+.compare-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.compare-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.compare-header p {
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* CARD */
+.compare-card {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* TABLE */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compare-table thead {
+  background: #f1f5f9;
+}
+
+.compare-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 14px;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.compare-table th.right,
+.compare-table td.right {
+  text-align: right;
+}
+
+.compare-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background 0.2s ease;
+}
+
+.compare-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.compare-table td {
+  padding: 16px;
+  vertical-align: middle;
+}
+
+/* SCHEME */
+.scheme-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.scheme-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+/* PROVIDER */
+.provider-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.provider-cell img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* RETURNS */
+.return-cell .positive {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+/* BADGES */
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-cat1 {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.badge-cat2 {
+  background: #ecfeff;
+  color: #0e7490;
+}
+
+.badge-cat3 {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+/* EMPTY */
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .compare-header h1 {
+    font-size: 22px;
+  }
+
+  .compare-table th,
+  .compare-table td {
+    padding: 12px;
+  }
+}

@@ -1,0 +1,34 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Top AIF — Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/aif_top.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<section class="section fade-up">
+  <div class="container">
+    <h1>Top Alternative Investment Funds</h1>
+    <p class="lead">
+      Curated AIF strategies shortlisted based on governance, structure, and suitability.
+    </p>
+
+    <div class="grid-3">
+      {% for scheme in schemes %}
+  <div class="card aif-card">
+    {% if scheme.is_shortlisted %}
+      <span class="badge">Shortlisted</span>
+    {% endif %}
+    <h3>{{ scheme.ia_name }}</h3>
+    <p class="provider">{{ scheme.provider.name }}</p>
+  </div>
+{% endfor %}
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

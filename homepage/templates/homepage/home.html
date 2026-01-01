@@ -1,12 +1,81 @@
 {% extends "config/base.html" %}
 {% load static %}
 
-{% block title %}Home — PMS & AIF India{% endblock %}
+{% block title %}Goalstox — Smart Investing in PMS, AIF & Mutual Funds{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 {% endblock %}
 
 {% block content %}
-  <h3>Home Page</h3>
+
+<section class="hero">
+  <div class="hero-wrap">
+    <div class="hero-copy">
+      <h1>Build Wealth with <span>Clarity, Discipline & Data</span></h1>
+
+      <p>
+        Goalstox helps investors discover high-quality Mutual Funds,
+        PMS and AIF strategies curated through deep research and
+        continuous monitoring.
+      </p>
+
+      <div class="hero-cta">
+        <a href="{% url 'homepage:pms' %}" class="btn primary">Explore PMS</a>
+        <a href="{% url 'homepage:get_in_touch' %}" class="btn ghost">Talk to Advisor</a>
+      </div>
+
+      <div class="hero-metrics">
+        <div><strong>₹5,000+ Cr</strong><span>AUM Reviewed</span></div>
+        <div><strong>300+</strong><span>Curated Strategies</span></div>
+        <div><strong>12,000+</strong><span>Investors Served</span></div>
+      </div>
+    </div>
+
+    <div class="hero-art">
+      <img src="{% static 'homepage/images/hero-invest.svg' %}" alt="Wealth growth">
+    </div>
+  </div>
+</section>
+
+<section class="trust">
+  <div>✔ SEBI-Registered Advisors</div>
+  <div>✔ Zero Distributor Bias</div>
+  <div>✔ Transparent Performance</div>
+  <div>✔ Secure & Compliant</div>
+</section>
+
+<section class="products">
+  <header>
+    <h2>Investment Products</h2>
+    <p>Solutions designed for every wealth stage</p>
+  </header>
+
+  <div class="product-grid">
+    <article>
+      <h3>Mutual Funds</h3>
+      <p>Low-cost diversified funds for long-term goals and SIP investing.</p>
+      <a href="{% url 'homepage:mutual_funds' %}">View Funds →</a>
+    </article>
+
+    <article class="featured">
+      <h3>Portfolio Management Services</h3>
+      <p>High-conviction portfolios managed by top investment professionals.</p>
+      <a href="{% url 'homepage:pms_whitelisted' %}">View Whitelisted PMS →</a>
+    </article>
+
+    <article>
+      <h3>Alternative Investment Funds</h3>
+      <p>Private market and alternative strategies for sophisticated investors.</p>
+      <a href="{% url 'homepage:aif' %}">Explore AIFs →</a>
+    </article>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Start Investing with Confidence</h2>
+  <p>Simple. Transparent. Research-backed.</p>
+  <a href="{% url 'homepage:get_in_touch' %}" class="btn primary">Get Started</a>
+</section>
+
 {% endblock %}

@@ -1,6 +1,6 @@
 # users/models/brokerProfile.py
-
-import os
+import random
+import string
 from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
@@ -12,94 +12,8 @@ from users.validators.validators import (
     MigrationSafeFileValidators,
 )
 
-# =====================================================================
-#               FILE VALIDATORS (MIGRATION-SAFE, NO INNER FUNCS)
-# =====================================================================
-
 PDF_IMG_EXT = ["pdf", "png", "jpg", "jpeg", "gif"]
 
-""" 
-class MigrationSafeFileValidators:
-    
-    #Migration-safe validator for file size + extension.
-    #Safe against missing files on disk (won't raise FileNotFoundError during size check).
-    
-
-    def __init__(self, max_kb, allowed_exts):
-        self.max_kb = int(max_kb)
-        # store a copy for deconstruct to serialize
-        self.allowed_exts = [ext.lower() for ext in allowed_exts]
-
-    def __call__(self, file_obj):
-        # file_obj can be None / empty string etc.
-        if not file_obj:
-            return
-
-        # --- Size check ---
-        try:
-            size = None
-            # FileField FieldFile exposes .size via storage.size(name)
-            # but storage.size can raise if file not present on disk.
-            size = getattr(file_obj, "size", None)
-            # if .size is None try to compute via file-like object
-            if size is None and hasattr(file_obj, "file"):
-                try:
-                    file_obj.file.seek(0, os.SEEK_END)
-                    size = file_obj.file.tell()
-                    file_obj.file.seek(0)
-                except Exception:
-                    size = None
-        except Exception:
-            # If we cannot determine size (missing file, storage error), skip size validation.
-            size = None
-
-        if size is not None:
-            if size > self.max_kb * 1024:
-                raise ValidationError(f"File size must be <= {self.max_kb} KB")
-
-        # --- Extension check ---
-        try:
-            name = getattr(file_obj, "name", None)
-            if name:
-                ext = os.path.splitext(name)[1].lstrip(".").lower()
-                if ext and ext not in self.allowed_exts:
-                    raise ValidationError(
-                        f"Allowed file types: {', '.join(self.allowed_exts)}"
-                    )
-        except Exception:
-            # be tolerant if file object doesn't expose name
-            return
-
-    def deconstruct(self):
-        return (
-            "users.models.brokerProfile.MigrationSafeFileValidators",
-            [self.max_kb, list(self.allowed_exts)],
-            {},
-        )
-
-    def __repr__(self):
-        return f"MigrationSafeFileValidators(max_kb={self.max_kb}, allowed_exts={self.allowed_exts})"
-
-
-# ==============================================================
-#                     AUTO-FOLDER CREATOR
-# ==============================================================
-
-
-def ensure_upload_folder(path: str):
-    #Automatically creates MEDIA_ROOT/upload_to folder if missing.
-    full_path = os.path.join(settings.MEDIA_ROOT, path)
-    directory = os.path.dirname(full_path)
-
-    # Create full directory structure
-    os.makedirs(directory, exist_ok=True)
-
-    return path
- """
-
-# =====================================================================
-#                             CONSTANTS
-# =====================================================================
 
 ACCOUNT_TYPES = [
     ("individual", "Individual"),
@@ -118,12 +32,6 @@ PRODUCT_CHOICES = [
     ("insurance", "Insurance"),
 ]
 
-
-# =====================================================================
-#                           BROKER MODEL
-# =====================================================================
-
-
 class BrokerProfile(models.Model):
 
     # --- User Link ---
@@ -131,6 +39,14 @@ class BrokerProfile(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name="broker_profile",
+    )
+    broker_code = models.CharField(
+        max_length=6,
+        unique=True,
+        editable=False,
+        db_index=True,
+        null=True,      # REQUIRED for now
+        blank=True,
     )
 
     # --- Identity ---
@@ -140,8 +56,8 @@ class BrokerProfile(models.Model):
         max_length=30, choices=ACCOUNT_TYPES, default="individual", db_index=True
     )
     status = models.CharField(max_length=30, default="draft")
-    is_active = models.BooleanField(default=True)
-
+    is_active = models.BooleanField(default=False)
+    is_profile_completed = models.BooleanField(default=False)
     # --- Contact Info ---
     contact_name = models.CharField(max_length=255)
     contact_email = models.EmailField()
@@ -251,18 +167,6 @@ class BrokerProfile(models.Model):
         validators=[MigrationSafeFileValidators(500, PDF_IMG_EXT)],
     )
 
-    # --- Authorized Signatory ---
-    auth_signatory_name = models.CharField(max_length=255, blank=True, null=True)
-    auth_signatory_email = models.EmailField(blank=True, null=True)
-    auth_signatory_phone = models.CharField(max_length=40, blank=True, null=True)
-    auth_signatory_pan = models.CharField(max_length=20, blank=True, null=True)
-    auth_signatory_kyc = models.FileField(
-        upload_to="onboarding/signatory_kyc/",
-        blank=True,
-        null=True,
-        validators=[MigrationSafeFileValidators(500, PDF_IMG_EXT)],
-    )
-
     # --- Review Metadata ---
     notes = models.TextField(blank=True, null=True)
     submitted_at = models.DateTimeField(blank=True, null=True)
@@ -290,9 +194,26 @@ class BrokerProfile(models.Model):
         indexes = [
             models.Index(fields=["account_type"]),
             models.Index(fields=["pan_number"]),
+            models.Index(fields=["broker_code"]),
         ]
+        ordering = ["-id"]
         verbose_name = "Broker profile"
         verbose_name_plural = "Broker profiles"
 
+    # -------- Broker Code Generator --------
+    def _generate_broker_code(self):
+        letters = "".join(random.choices(string.ascii_uppercase, k=2))
+        digits = "".join(random.choices(string.digits, k=3))
+        return f"B{letters}{digits}"
+
+    def save(self, *args, **kwargs):
+        if not self.broker_code:
+            while True:
+                code = self._generate_broker_code()
+                if not BrokerProfile.objects.filter(broker_code=code).exists():
+                    self.broker_code = code
+                    break
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"{self.contact_name} ({self.account_type})"
+        return f"{self.broker_code} - {self.contact_name}"

@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
   <div class="register-container">
     <form class="register-form" method="post" autocomplete="off">
       {% csrf_token %}
+      <input type="hidden" name="broker" value="{{ broker }}">
+      <input type="hidden" name="employee" value="{{ employee }}">
       <h1>Goalstox</h1>
       <h3>Customer Register</h3>
       <p class="subtitle">Create your account to get started</p>

@@ -1,0 +1,197 @@
+{% extends "config/base.html" %}
+{% load static %}
+
+{% block title %}Alternative Investment Funds (AIF) — Overview & Guidance | Goalstox{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/aif.css' %}">
+<link rel="stylesheet" href="{% static 'css/button.css' %}">
+
+{% endblock %}
+
+{% block content %}
+
+<!-- Disclaimer: CSS-only modal using a hidden checkbox -->
+<input id="aif_ack" type="checkbox" class="ack-toggle" aria-hidden="true" />
+<div class="aif-disclaimer" role="dialog" aria-modal="true" aria-labelledby="aif-disc-title" aria-describedby="aif-disc-body">
+  <div class="disc-card">
+    <h3 id="aif-disc-title">Important Disclaimer</h3>
+    <div id="aif-disc-body" class="disc-body">
+      <p><strong>Alternative Investment Funds (AIFs) are offered via private placement only.</strong> The information on this page is strictly educational and provided for informational purposes.</p>
+      <ul>
+        <li>This is <em>not</em> an offer document or solicitation to the public.</li>
+        <li>Participation is subject to eligibility, risk assessment, and applicable regulations.</li>
+        <li>Please review official documents and consult your advisor before investing.</li>
+      </ul>
+    </div>
+    <div class="disc-actions">
+      <label for="aif_ack" class="btn btn--primary">I understand</label>
+      <a class="btn btn--ghost" href="/">Go back</a>
+    </div>
+  </div>
+</div>
+
+<section class="aif-hero" aria-labelledby="aif-hero-heading">
+  <div class="container hero-grid">
+    <div class="hero-copy">
+      <h1 id="aif-hero-heading">Alternative Investment Funds (AIF) — Framework, Eligibility, and Risks</h1>
+      <p class="lead">Understand categories, how AIFs work, fees, risks, suitability, and reporting. Goalstox helps you navigate privately placed products with clarity and compliance.</p>
+      <div class="hero-cta">
+        <a class="btn btn--primary" href="/aif/top">Explore Top AIFs</a>
+        <a class="btn btn--ghost" href="/aif/compare">Compare All</a>
+        <a class="btn btn--ghost" href="{% url 'homepage:get_in_touch' %}">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="info-card">
+        <h3>Quick facts</h3>
+        <ul class="facts">
+          <li><strong>Private placement:</strong> Not offered to the public</li>
+          <li><strong>Structure:</strong> Category I / II / III under SEBI</li>
+          <li><strong>Ticket size:</strong> As per prevailing regulations & fund terms</li>
+          <li><strong>Reporting:</strong> NAV/portfolio as per fund disclosures</li>
+        </ul>
+        <a class="link" href="{% url 'homepage:get_in_touch' %}">Talk to an advisor →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="tab-nav" aria-label="Section navigation">
+  <div class="container tab-row">
+    <a href="#what" class="tab">What is an AIF?</a>
+    <a href="#categories" class="tab">Categories</a>
+    <a href="#how" class="tab">How AIFs work</a>
+    <a href="#fees" class="tab">Fees & Minimums</a>
+    <a href="#risk" class="tab">Risks & Suitability</a>
+    <a href="#goalstox" class="tab">How Goalstox helps</a>
+  </div>
+</nav>
+
+<section id="what" class="section">
+  <div class="container two-col">
+    <div class="content">
+      <h2>What is an Alternative Investment Fund?</h2>
+      <p>An AIF pools capital from eligible investors and invests per a defined strategy. Units are privately placed; subscription, valuation, and liquidity terms are governed by the fund documents and SEBI regulations.</p>
+      <ul class="bullets">
+        <li>Privately placed units, not offered to the public</li>
+        <li>Targeted strategies (venture, private credit, long-short, etc.)</li>
+        <li>Disclosure, custody, audit, and reporting as per regulations</li>
+      </ul>
+    </div>
+    <aside class="side-card">
+      <h3>Good to know</h3>
+      <p>Eligibility, lock-ins, drawdowns, and liquidity can vary widely across AIF categories and strategies.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="categories" class="section alt">
+  <div class="container cards-3">
+    <article class="card">
+      <h3>Category I</h3>
+      <p>Invests in start-ups, early stage ventures, social ventures, SMEs, infrastructure, or other sectors deemed socially or economically desirable.</p>
+    </article>
+    <article class="card">
+      <h3>Category II</h3>
+      <p>Funds that do not fall in Category I or III and do not undertake leverage other than for day-to-day operational requirements.</p>
+    </article>
+    <article class="card">
+      <h3>Category III</h3>
+      <p>Employs diverse or complex trading strategies and may use leverage (e.g., long/short, derivatives) as permitted.</p>
+    </article>
+  </div>
+</section>
+
+<section id="how" class="section">
+  <div class="container grid-3">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Evaluation & Eligibility</h3>
+      <p>Review strategy, legal docs, risks, and your eligibility under the private placement norms.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Subscription</h3>
+      <p>Commit capital per the fund’s terms. Drawdowns or upfront funding as specified.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Reporting & Lifecycle</h3>
+      <p>NAV and portfolio updates as disclosed. Distributions and exit as per the fund’s lifecycle and market conditions.</p>
+    </div>
+  </div>
+</section>
+
+<section id="fees" class="section alt">
+  <div class="container two-col">
+    <div class="content">
+      <h2>Fees & Minimums</h2>
+      <ul class="bullets">
+        <li><strong>Minimums:</strong> As prescribed by regulation and fund documents</li>
+        <li><strong>Fees:</strong> Management fee and performance fee; other costs per the PPM</li>
+        <li><strong>Liquidity:</strong> Lock-ins and redemption terms vary by category and fund</li>
+      </ul>
+      <p class="muted">Always evaluate net investor outcomes over headline numbers.</p>
+      <div class="cta-inline">
+        <a class="btn btn--primary" href="/aif/top">Explore Top AIFs</a>
+        <a class="btn btn--ghost" href="/aif/compare">Compare All</a>
+        <a class="btn btn--ghost" href="{% url 'homepage:get_in_touch' %}">Get in touch</a>
+      </div>
+    </div>
+    <aside class="side-card">
+      <h3>Questions?</h3>
+      <p>We’ll walk you through suitability, documentation, and reporting expectations.</p>
+      <a class="btn btn--secondary" href="{% url 'homepage:get_in_touch' %}">Start a conversation</a>
+    </aside>
+  </div>
+</section>
+
+<section id="risk" class="section">
+  <div class="container cards-3">
+    <article class="card">
+      <h3>Strategy & Market Risk</h3>
+      <p>Private/complex strategies entail risks that can be materially different from listed equity funds.</p>
+    </article>
+    <article class="card">
+      <h3>Liquidity & Lock-in</h3>
+      <p>Limited secondary liquidity; redemption and exits follow fund documents and market conditions.</p>
+    </article>
+    <article class="card">
+      <h3>Operational & Legal</h3>
+      <p>Fund structures, custody, leverage, and valuations require careful review of official documents.</p>
+    </article>
+  </div>
+</section>
+
+<section id="goalstox" class="section alt">
+  <div class="container two-col">
+    <div class="content">
+      <h2>How Goalstox Helps</h2>
+      <ul class="ticks">
+        <li>Focus on process, governance, and risk over optics</li>
+        <li>Brief, clear explanations — no solicitation</li>
+        <li>Documentation support and coordinated follow-ups</li>
+      </ul>
+      <div class="cta-inline">
+        <a class="btn btn--primary" href="/aif/top">Explore Top AIFs</a>
+        <a class="btn btn--ghost" href="/aif/compare">Compare All</a>
+        <a class="btn btn--ghost" href="{% url 'homepage:get_in_touch' %}">Get in touch</a>
+      </div>
+    </div>
+    <aside class="side-card">
+      <h3>Prefer a walkthrough?</h3>
+      <p>Share your goals and constraints — we’ll help you evaluate the fit.</p>
+      <a class="btn btn--secondary" href="{% url 'homepage:get_in_touch' %}">Talk to Goalstox</a>
+    </aside>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="container">
+    <h3>Clarity first. Execution, only if suitable.</h3>
+    <a class="btn btn--ghost-white" href="{% url 'homepage:get_in_touch' %}">Get in touch</a>
+  </div>
+</section>
+
+{% endblock %}

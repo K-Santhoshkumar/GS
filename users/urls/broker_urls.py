@@ -22,6 +22,17 @@ urlpatterns = [
         broker_required(broker_profile.broker_profile),
         name="broker_profile",
     ),
+     path("customers/", broker_required(broker_view.customers_list), name="customers_list"),
+    path(
+        "dashboard/",
+        broker_required(broker_view.broker_dashboard),
+        name="broker_dashboard",
+    ),
+    path(
+        "customers/<int:customer_id>/",
+        broker_required(broker_view.customer_detail),
+        name="customer_detail",
+    ),
     path("logout/", broker_required(broker_view.broker_logout), name="broker_logout"),
     path("unauthorized/", unauthorized, name="unauthorized"),
 ]

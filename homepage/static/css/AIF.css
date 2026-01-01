@@ -1,0 +1,365 @@
+/* ===========================
+   Goalstox AIF Page Styles
+   =========================== */
+
+:root {
+  --brand: #304aa6;
+  --brand-light: #eaf0ff;
+  --text: #111;
+  --muted: #666;
+  --edge: #e1e4ea;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --bg-alt: #f9f9fb;
+}
+
+/* Utilities */
+
+.container {
+  width: min(1120px, 92%);
+  margin-inline: auto;
+}
+
+.section {
+  padding: 72px 0;
+}
+
+.section.alt {
+  background: var(--bg-alt);
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.7;
+  max-width: 720px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.link {
+  color: var(--brand);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: 0.2s ease;
+}
+
+.btn--primary {
+  background: var(--brand);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: var(--edge);
+  color: var(--text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.btn--secondary {
+  background: #fff;
+  border-color: var(--edge);
+  color: var(--brand);
+}
+
+.btn--secondary:hover {
+  box-shadow: 0 6px 18px rgba(48, 74, 166, 0.15);
+}
+
+.btn--ghost-white {
+  background: transparent;
+  border-color: #fff;
+  color: #fff;
+}
+
+/* Lists */
+
+.bullets {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.ticks {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ticks li::before {
+  content: "✓";
+  margin-right: 0.5rem;
+  color: var(--brand);
+}
+
+.cta-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* Disclaimer (CSS-only modal) */
+
+.ack-toggle {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.aif-disclaimer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: saturate(120%) blur(4px);
+  backdrop-filter: saturate(120%) blur(4px);
+  z-index: 9999;
+}
+
+#aif_ack:checked ~ .aif-disclaimer {
+  display: none;
+}
+
+.disc-card {
+  width: min(760px, 92%);
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+.disc-card h3 {
+  margin-bottom: 8px;
+  color: var(--brand);
+}
+
+.disc-body {
+  color: var(--text);
+}
+
+.disc-body ul {
+  margin: 8px 0 0 18px;
+}
+
+.disc-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* Hero */
+
+.aif-hero {
+  position: relative;
+  padding: 88px 0;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(234, 240, 255, 0.2), rgba(255, 255, 255, 0.2)),
+    url("/static/assets/aif-hero-bg.webp") center / cover no-repeat;
+}
+
+.aif-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.hero-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.hero-copy h1 {
+  font-size: clamp(28px, 3.2vw, 40px);
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.hero-panel .info-card {
+  background: var(--card-bg);
+  border: 1px solid var(--edge);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.info-card h3 {
+  margin-bottom: 8px;
+  color: var(--brand);
+  font-size: 18px;
+}
+
+.facts {
+  list-style: none;
+  margin: 10px 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.facts li strong {
+  font-weight: 700;
+}
+
+/* Tabs */
+
+.tab-nav {
+  background: #fff;
+  border-top: 1px solid var(--edge);
+  border-bottom: 1px solid var(--edge);
+}
+
+.tab-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.tab {
+  color: #333;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--edge);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+/* Layout Blocks */
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+}
+
+.side-card {
+  background: var(--card-bg);
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.side-card h3 {
+  margin-bottom: 6px;
+  color: var(--brand);
+}
+
+.grid-3,
+.cards-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+.step {
+  background: #fff;
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--edge);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+
+.card h3 {
+  margin-bottom: 6px;
+}
+
+/* CTA Band */
+
+.cta-band {
+  background: var(--brand);
+  color: #fff;
+  text-align: center;
+  padding: 56px 0;
+  margin: 60px 0;
+  border-top: 4px solid var(--brand-light);
+}
+
+.cta-band h3 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+/* Responsive */
+
+@media (max-width: 980px) {
+  .hero-grid,
+  .two-col,
+  .grid-3,
+  .cards-3 {
+    grid-template-columns: 1fr;
+  }
+}

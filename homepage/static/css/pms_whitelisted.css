@@ -1,0 +1,281 @@
+/* =====================================================
+   ROOT & RESET
+   ===================================================== */
+:root {
+  --primary: #2e4aac;
+  --secondary: #1a202c;
+  --muted: #6b7280;
+  --bg-light: #f9fafb;
+  --border: #e5e7eb;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-light);
+  color: var(--secondary);
+}
+
+/* =====================================================
+   COMMON
+   ===================================================== */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 16px;
+}
+
+.pms-muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+/* =====================================================
+   HERO
+   ===================================================== */
+.pms-hero {
+  padding: 60px 0;
+  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+}
+
+.pms-hero-title {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.pms-hero-sub {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
+.pms-search-wrap {
+  margin: 24px 0 32px;
+}
+
+.pms-search-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+.pms-search-input:focus {
+  border-color: var(--primary);
+}
+
+/* =====================================================
+   PROVIDERS MARQUEE
+   ===================================================== */
+.pms-providers-title {
+  margin-bottom: 16px;
+}
+
+.pms-marquee-wrapper {
+  overflow: hidden;
+  background: var(--white);
+  border-radius: 14px;
+  padding: 16px 0;
+  border: 1px solid var(--border);
+}
+
+.pms-marquee-track {
+  display: flex;
+  gap: 24px;
+  animation: marquee 25s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.pms-card {
+  min-width: 180px;
+  background: var(--white);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pms-logo img {
+  max-height: 40px;
+  margin-bottom: 8px;
+}
+
+.pms-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* =====================================================
+   MOST WATCHED
+   ===================================================== */
+.pms-watched {
+  padding: 60px 0;
+}
+
+.pms-watched-filters {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 24px;
+  flex-wrap: wrap;
+}
+
+.pms-watched-filters button {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.pms-watched-filters button.active {
+  background: var(--primary);
+  color: var(--white);
+  border-color: var(--primary);
+}
+
+.pms-watched-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.pms-watched-card {
+  background: var(--white);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.pms-watched-card:hover {
+  transform: translateY(-4px);
+}
+
+.pms-watched-card h4 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.pms-return {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* =====================================================
+   ALL SCHEMES TABLE
+   ===================================================== */
+.pms-main {
+  padding-bottom: 80px;
+}
+
+.pms-schemes-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pms-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.pms-table-card {
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.pms-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pms-table th,
+.pms-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.pms-table th {
+  background: #f3f4f6;
+  font-weight: 600;
+  text-align: left;
+}
+
+.pms-table tr:hover {
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.pms-empty {
+  text-align: center;
+  color: var(--muted);
+}
+
+/* =====================================================
+   MODAL
+   ===================================================== */
+.pms-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.pms-modal.active {
+  display: flex;
+}
+
+.pms-modal-card {
+  background: var(--white);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  padding: 24px;
+}
+
+.pms-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.pms-modal-header button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}

@@ -1,121 +1,139 @@
-{% extends "config/base.html" %} {% load static %} {% block title %}Customer
-Profile{% endblock %} {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/broker_profile.css' %}" />
-{% endblock %} {% block content %}
+{% extends "config/base.html" %}
+{% load static %}
+{% block title %}Customer Profile{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/broker_profile.css' %}" />
+{% endblock %}
+
+{% block content %}
 <section class="container">
+
+  <!-- ================= HEADER ================= -->
   <div class="profile-header">
     <h1>Customer Profile</h1>
-    <a href="{% url 'users:customer:customer_home' %}" class="btn btn-ghost"
-      >Home</a
-    >
+    <a href="{% url 'users:customer:customer_home' %}" class="btn btn-ghost">
+      Home
+    </a>
   </div>
 
-  <!-- Steps -->
+  <!-- ================= STEPS ================= -->
   <nav class="steps">
-    <a
-      href="?step=1"
-      class="step {% if step == 1 %}active{% endif %} {% if step_done_s1 %}done{% endif %}"
-    >
+
+    <a href="?step=1"
+       class="step {% if step == 1 %}active{% endif %} {% if step_done_s1 %}done{% endif %}">
       <span class="num">{% if step_done_s1 %}✓{% else %}1{% endif %}</span>
       Basic
     </a>
 
-    <a
-      href="?step=2"
-      class="step {% if step == 2 %}active{% endif %} {% if step_done_s2 %}done{% endif %}"
-    >
+    <a href="?step=2"
+       class="step {% if step == 2 %}active{% endif %} {% if step_done_s2 %}done{% endif %}">
       <span class="num">{% if step_done_s2 %}✓{% else %}2{% endif %}</span>
       Address
     </a>
 
-    <a
-      href="?step=3"
-      class="step {% if step == 3 %}active{% endif %} {% if step_done_s3 %}done{% endif %}"
-    >
+    <a href="?step=3"
+       class="step {% if step == 3 %}active{% endif %} {% if step_done_s3 %}done{% endif %}">
       <span class="num">{% if step_done_s3 %}✓{% else %}3{% endif %}</span>
       Documents
     </a>
+
   </nav>
 
-  <!-- Progress -->
+  <!-- ================= PROGRESS ================= -->
   <div class="progress">
-    <div
-      class="bar"
-      id="progress-bar"
-      style="--pct: {{ percent_complete }}%"
-    ></div>
+    <div class="bar" style="--pct: {{ percent_complete }}%"></div>
     <span class="progress-text">{{ percent_complete }}% Complete</span>
   </div>
 
-  <!-- FORM -->
+  <!-- ================= FORM ================= -->
   <div class="form-card">
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
-      <input type="hidden" id="action-field" name="action" value="save" />
+
+      <!-- 🔥 REQUIRED FOR BUTTON NAVIGATION -->
+      <input type="hidden" id="action-field" name="action" value="save">
 
       <h3 class="step-title">
-        {% if step == 1 %} Basic Details {% elif step == 2 %} Address Details
-        {%elif step == 3 %} Documents & Verification {% endif %}
+        {% if step == 1 %}
+          Basic Details
+        {% elif step == 2 %}
+          Address Details
+        {% elif step == 3 %}
+          Documents & Verification
+        {% endif %}
       </h3>
 
+      <!-- ================= FIELDS ================= -->
       <div class="fields">
         {% for item in fields_list %}
         <div class="field">
-          <label for="{{ item.field.id_for_label }}">
-            {{ item.field.label }} {% if item.field.field.required %}<span
-              class="req"
-              >*</span
-            >{% endif %}
+
+          <label>
+            {{ item.field.label }}
+            {% if item.field.field.required %}
+              <span class="req">*</span>
+            {% endif %}
           </label>
 
-          {{ item.field }} {% if item.uploaded %}
-          <div class="uploaded">
+          {{ item.field }}
+
+          {% if item.uploaded %}
+          <div class="uploaded-file">
             <a href="{{ item.uploaded.url }}" target="_blank">
-              {{ item.uploaded.name|slice:"40" }}
+              📄 {{ item.uploaded.name }}
             </a>
             <button
               type="button"
               class="delete-file-btn"
               data-field="{{ item.field.name }}"
-            >
+              title="Delete file">
               🗑
             </button>
           </div>
-          {% endif %} {% if item.field.errors %}
-          <p class="error">{{ item.field.errors }}</p>
           {% endif %}
+
+          {% if item.field.errors %}
+            <p class="error">{{ item.field.errors|striptags }}</p>
+          {% endif %}
+
         </div>
         {% endfor %}
       </div>
 
+      <!-- ================= ACTIONS ================= -->
       <div class="actions">
+
         {% if step > 1 %}
-        <button type="submit" class="btn btn-ghost" onclick="setAction('prev')">
+        <button type="submit"
+                class="btn btn-ghost"
+                onclick="setAction('prev')">
           Previous
         </button>
-        {% endif %} {% if step < 3 %}
-        <button
-          type="submit"
-          class="btn btn-primary"
-          onclick="setAction('next')"
-        >
+        {% endif %}
+
+        {% if step < 3 %}
+        <button type="submit"
+                class="btn btn-primary"
+                onclick="setAction('next')">
           Save & Continue
         </button>
         {% else %}
-        <button
-          type="submit"
-          class="btn btn-primary"
-          onclick="setAction('finish')"
-        >
+        <button type="submit"
+                class="btn btn-primary"
+                onclick="setAction('finish')">
           Finish
         </button>
         {% endif %}
+
       </div>
+
     </form>
   </div>
-</section>
 
-{% endblock %} {% block extra_js %}
-<script src="{% static 'js/broker_profile.js' %}"></script>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/customer_profile.js' %}"></script>
 {% endblock %}

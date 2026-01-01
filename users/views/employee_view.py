@@ -15,6 +15,7 @@ from otps.models import OTPPurpose
 # ✅ Only mandatory imports for authorization & blocking
 from config.permissions import is_employee
 from config.decorators import employee_required, block_logged_in_for_role
+from users.views.employee_profile import calculate_progress
 
 User = get_user_model()
 
@@ -147,13 +148,7 @@ def employee_login(request):
     return render(request, "users/employee_login.html")
 
 
-@login_required
-@employee_required
-def employee_home(request):
-    return render(request, "users/employee_home.html")
-
-
-@login_required
+""" @login_required
 @employee_required
 def employee_profile(request):
 
@@ -172,9 +167,79 @@ def employee_profile(request):
 
     return render(request, "users/employee_profile.html", {"profile": profile})
 
+ """
+# ======================================================
+# EMPLOYEE HOME
+# ======================================================
+@login_required
+@employee_required
+def employee_home(request):
+    profile = getattr(request.user, "employee_profile", None)
 
+    percent = 0
+    profile_complete = False
+    profile_active = False
+
+    if profile:
+        percent = calculate_progress(profile)
+        profile_complete = profile.is_profile_completed
+        profile_active = profile.is_active
+
+        # ✅ Only when BOTH true → dashboard
+        if (
+            request.path.endswith("/home/")
+            and profile_complete
+            and profile_active
+        ):
+            return redirect("users:employee:employee_dashboard")
+
+    return render(
+        request,
+        "users/employee_home.html",
+        {
+            "profile": profile,
+            "percent_complete": percent,
+            "profile_complete": profile_complete,
+            "profile_active": profile_active,
+        },
+    )
+
+
+# ======================================================
+# EMPLOYEE DASHBOARD
+# ======================================================
+@login_required
+@employee_required
+def employee_dashboard(request):
+    profile = getattr(request.user, "employee_profile", None)
+
+    # ❌ No profile → back to home
+    if not profile:
+        return redirect("users:employee:employee_home")
+
+    # ❌ Profile incomplete or inactive → back to home
+    if not profile.is_profile_completed or not profile.is_active:
+        return redirect("users:employee:employee_home")
+
+    # ✅ Valid dashboard access
+    return render(
+        request,
+        "users/employee_dashboard.html",
+        {
+            "profile": profile,
+            "is_completed": True,
+        },
+    )
+
+
+# ======================================================
+# EMPLOYEE LOGOUT
+# ======================================================
 @require_POST
 @employee_required
 def employee_logout(request):
+    # 🔥 Clear pending messages
+    list(messages.get_messages(request))
+
     logout(request)
     return redirect("users:employee:employee_login")

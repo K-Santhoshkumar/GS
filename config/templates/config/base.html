@@ -57,15 +57,24 @@
           <span class="nav-bar"></span>
         </button>
 
+        <!-- Navigation -->
         <nav class="nav" aria-label="Primary">
           <ul class="nav-list">
-            <li><a href="#opportunities">Opportunities</a></li>
-            <li><a href="#pms">PMS</a></li>
-            <li><a href="#aif">AIF</a></li>
+            <li>
+              <a href="{% url 'homepage:home' %}">Home</a>
+            </li>
+            <li>
+              <a href="{% url 'homepage:pms' %}">PMS</a>
+            </li>
+            <li>
+              <a href="{% url 'homepage:aif' %}">AIF</a>
+            </li>
           </ul>
 
           <div class="nav-cta">
-            <a class="btn btn-ghost" href="#app">Partner</a>
+            <a class="btn btn-ghost" href="{% url 'homepage:partner' %}">
+              Partner
+            </a>
           </div>
         </nav>
       </div>
@@ -76,14 +85,15 @@
       <div class="container">{% block content %}{% endblock %}</div>
     </main>
 
-    <!-- Footer -->
+    <!-- ================= FOOTER ================= -->
     <footer class="site-footer">
       <div class="container footer-grid">
+        <!-- Brand -->
         <div>
-          <a class="brand brand-foot" href="/">
+          <a class="brand brand-foot" href="{% url 'homepage:home' %}">
             <img
               src="{% static 'assets/white-long-removebg.png' %}"
-              alt="Goalstox mark"
+              alt="Goalstox"
               class="brand-mark"
             />
             <span class="brand-text">PMS & AIF India</span>
@@ -95,18 +105,21 @@
           </p>
         </div>
 
+        <!-- Footer Links -->
         <nav aria-label="Footer">
           <ul class="foot-links">
-            <li><a href="#pms">PMS</a></li>
-            <li><a href="#aif">AIF</a></li>
-            <li><a href="#research">Research</a></li>
-            <li><a href="#disclosures">Disclosures</a></li>
-            <li><a href="#privacy">Privacy</a></li>
+            <li><a href="{% url 'homepage:pms' %}">PMS</a></li>
+            <li><a href="{% url 'homepage:aif' %}">AIF</a></li>
+            <li><a href="{% url 'homepage:get_in_touch' %}">Contact</a></li>
+            <li><a href="{% url 'homepage:partner' %}">Partner</a></li>
           </ul>
         </nav>
 
+        <!-- CTA -->
         <div class="foot-cta">
-          <a class="btn btn-dark" href="#register">Get Started</a>
+          <a class="btn btn-dark" href="{% url 'homepage:get_in_touch' %}">
+            Get Started
+          </a>
         </div>
       </div>
     </footer>
